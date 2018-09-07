@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1999322979393888}
+  m_IsPrefabAsset: 1
+--- !u!1 &1999322979393888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4688670217975698}
+  - component: {fileID: 114752048429838218}
+  m_Layer: 0
+  m_Name: Item
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4688670217975698
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1999322979393888}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 28.134914, y: -46.59264, z: 53.907257}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114752048429838218
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1999322979393888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2af0dc872a087524597b2c496a4fa7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: 
+  Description: 
+  Id: 0
+  Type: 0
+  Stats:
+    Strength: 0
+    Agility: 0
+    Dexterity: 0
+    Inteligence: 0
+    Endurance: 0
+    Luck: 0
+    Health: 0
+    MaxHealth: 0
+    HealthRegeneration: 0
+    Energy: 0
+    MaxEnergy: 0
+    EnergyRegeneration: 0
+    Shield: 0
+    ShieldRegeneration: 0
+    Damage: 0
+    DamageMultiplier: 0
+    AttackSpeed: 0
+    Range: 0
+    CriticalChance: 0
+    CriticalMultiplier: 0
+    CriticalOverflow: 0
+    Armor: 0
+    ElementalArmor: 0
+    DamageReduction: 0
+    Block: 0
+    BlockChance: 0
+    Evasion: 0
+    EvasionChance: 0
+    ColdownReduction: 0
+    Speed: 0
+    VisionRadius: 0

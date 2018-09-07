@@ -1,0 +1,117 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1832910794536108}
+  m_IsPrefabAsset: 1
+--- !u!1 &1832910794536108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4130478179086900}
+  - component: {fileID: 114071137896145910}
+  - component: {fileID: 114508163079542634}
+  - component: {fileID: 135143669372264476}
+  - component: {fileID: 114981819145656816}
+  m_Layer: 2
+  m_Name: Idle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4130478179086900
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1832910794536108}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 28.134914, y: -46.59264, z: 53.907257}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114071137896145910
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1832910794536108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d773c3cbb60d165459968f689c229d7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Transitions: []
+  Name: Idle
+  DebugMode: 0
+  TransitionPass: 0
+  TransitionState: {fileID: 0}
+--- !u!114 &114508163079542634
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1832910794536108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fab6d7fab37c92d4ba8134d1291a5b11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Enable: 1
+  Probability: 50
+  Smooth: 1
+  Delay: 3
+  DeadZone: 0
+  Limits: {x: 90, y: -90}
+--- !u!114 &114981819145656816
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1832910794536108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc5bd80d98f24cb41a3e47f23ac2dee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DebugMode: 1
+  Controller: {fileID: 143049208443564804, guid: fa9524ea8ce59e84d9124c2b62f63009,
+    type: 2}
+  Enable: 1
+  Memory: 1
+  FieldOfView: 90
+  State: 0
+  Instinct: 0
+  PlayerTag: Player
+  Tags: []
+  ThreatGainRate: 8
+  ThreatLossRate: 8
+  ThreatLimit: 100
+  ThreatDelay: 0.55
+  ThreatLossMultiplier: 2
+  ThreatGainMultiplier: 2
+--- !u!135 &135143669372264476
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1832910794536108}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 8
+  m_Center: {x: 0, y: 0, z: 0}
