@@ -7,19 +7,24 @@ using LitJson;
 
 public class ItemManager : MonoBehaviour
 {
-    [Header("Item Manager")]
+	public static ItemManager Instance { get{ return _Instance; } }
+	private static ItemManager _Instance;
+
+	[Header("Item Manager")]
     public GameObject Prefab;
     public string Path = "";
     public string Extension = ".json";
 
-	void Awake () {
-        //SaveItem("Item", Prefab);
-	}
-
-	void Start ()
+    private void Awake()
     {
-        SpawnItem("Item", transform.position, transform.rotation);
-	}
+        if (_Instance == null)
+        {
+            _Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+            Destroy(gameObject);
+    }
 
     public void SaveItem(string Name,GameObject Prefab)
     {
@@ -90,5 +95,10 @@ public class ItemManager : MonoBehaviour
         }
 
         return Object;
+    }
+
+    public GameObject Search(string Name)
+    {
+        return GameObject.Find(Name);
     }
 }
