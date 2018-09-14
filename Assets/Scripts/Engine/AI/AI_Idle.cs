@@ -1,33 +1,63 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(State))]
 public class AI_Idle : MonoBehaviour
 {
-    [Header("Rotation")]
-    public bool Enable;
-    [Range(0,100)]public float Probability;
-    public float Smooth;
-    public float Delay;
-    public float DeadZone;
-    public Vector2 Limits = new Vector2(90, -90);
+    public enum EIdleType
+    {
+        None,
+        Random,
+        Static
+    }
+
+
+    [Header("Idle")]
+    public EIdleType Type;
+    public int Index = 0;
+    [Range(0.0f,100.0f)] public float Probability;
+    [Tooltip("Time in seconds for idle animation change.")]
+    public float Rate = 0.0f;
+    [Tooltip("List of all idle animations ids for system pick")]
+    public List<int> Idles = new List<int>();
+    
+
+    [Header("Turn")]
+    public bool Turn;
+    public float TurnRate;
+    public List<int> Turns = new List<int>();
+    public List<int> Sequence = new List<int>();
+    [SerializeField] bool RootMotion = false;
 
     private Transform RootComponent;
     private State StateComponent;
-    private Vector3 InitialPosition;
-    private Quaternion InitialRotation;
+    private Animator AnimatorComponent;
+    private NavMeshAgent NavMeshAgentComponent;
 
-    Quaternion Rotation,TargetRotation;
-    bool Reach = true;
+    int IdleId = 0,TurnId = 0, TurnIndex = 0;
+    float IdleDelta = 0.0f, TurnDelta = 0.0f;
+    Vector3 InitialPosition;
+    Quaternion InitialRotation,Rotation,TargetRotation;
     
     private void Awake()
     {
+        RootComponent = transform.root;
+
         StateComponent = GetComponent<State>();
         if (!StateComponent)
             Debug.LogError("AI_Idle: State component is null or invalid.");
 
-        RootComponent = transform.root;
+        AnimatorComponent = RootComponent.GetComponentInChildren<Animator>();
+        if (!AnimatorComponent)
+            Debug.LogError("AI_Idle: Animator component is null or invalid");
+
+        NavMeshAgentComponent = GetComponentInParent<NavMeshAgent>();
+        if (!NavMeshAgentComponent)
+            Debug.LogError("AI_Idle: NavMeshAgent component is null or invalid");
+
+        NavMeshAgentComponent.enabled = false;
+        NavMeshAgentComponent.enabled = true;
     }
 
     private void Start ()
@@ -35,29 +65,50 @@ public class AI_Idle : MonoBehaviour
         InitialPosition = RootComponent.transform.position;
         InitialRotation = RootComponent.transform.rotation;
 
-        if(Enable)
-            InvokeRepeating("IdleUpdate", 0.0f, Delay);
+        if (Type == EIdleType.Static)
+        {
+            IdleId = Idles[Index];
+            AnimatorComponent.SetInteger("Idle", Idles[Index]);
+        }
+
+        AnimatorComponent.applyRootMotion = RootMotion;
+
 	}
 
     private void Update()
-    {
-        if (Enable && !Reach) {
-            Rotation = RootComponent.transform.rotation;
-            RootComponent.transform.rotation = Quaternion.Lerp(Rotation, TargetRotation, Smooth * Time.deltaTime);
+    { 
+        IdleDelta += Time.deltaTime;
+        TurnDelta = (Turn) ? TurnDelta + Time.deltaTime : 0.0f;
+
+        if (IdleDelta >= Rate)
+        {
+            if (Random.Range(0.0f, 100.0f) < Probability)
+            {
+                switch (Type)
+                {
+                    case EIdleType.None: Index++; break;
+                    case EIdleType.Random: Index = Random.Range(0, Idles.Count); break;
+                    case EIdleType.Static: break;
+                }
+            }
+            Index = (Index >= Idles.Count) ? 0 : Index;
+            IdleId = Idles[Index];
+            AnimatorComponent.SetInteger("Idle", IdleId);
+            IdleDelta = 0.0f;
         }
 
-        Quaternion DeltaRotation = Utils.Substract(TargetRotation, Rotation);
-        if (Quaternion.Angle(DeltaRotation, RootComponent.transform.rotation) <= (0 + DeadZone))
-            Reach = true;
+        if (Turn && TurnDelta >= TurnRate)
+        {
+            TurnIndex = (TurnIndex >= Sequence.Count) ? 0 : TurnIndex++;
+            TurnId = Sequence[TurnIndex];
+            AnimatorComponent.SetInteger("TurnType", TurnId);
+            AnimatorComponent.SetTrigger("Turn");
+            TurnDelta = 0.0f;
+        }
     }
 
-    void IdleUpdate()
+    private void LateUpdate()
     {
-        if (Random.Range(0.0f, 100.0f) <= Probability && Reach)
-        {
-            float Angle = Random.Range(Limits.x, Limits.y);
-            TargetRotation = Quaternion.AngleAxis(Angle, Vector3.up);
-            Reach = false;
-        }
+        //RootComponent.rotation = AnimatorComponent.rootRotation;
     }
 }

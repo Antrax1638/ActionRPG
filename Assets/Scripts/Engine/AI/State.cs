@@ -139,7 +139,17 @@ public class State : MonoBehaviour
 		Temp = new Transition[0];
 	}
 
-	public bool Contains(Transition Transition)
+    public bool Contains(string Name)
+    {
+        for (int i = 0; i < Transitions.Length; i++)
+        {
+            if (Transitions[i].State.Name == Name)
+                return true;
+        }
+        return false;
+    }
+
+    public bool Contains(Transition Transition)
 	{
 		for (int i = 0; i < Transitions.Length; i++) {
 			if (Transitions [i].State == Transition.State)

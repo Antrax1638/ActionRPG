@@ -21,8 +21,8 @@ GameObject:
   - component: {fileID: 4130478179086900}
   - component: {fileID: 114071137896145910}
   - component: {fileID: 114508163079542634}
-  - component: {fileID: 135143669372264476}
   - component: {fileID: 114981819145656816}
+  - component: {fileID: 135143669372264476}
   m_Layer: 2
   m_Name: Idle
   m_TagString: Untagged
@@ -54,7 +54,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d773c3cbb60d165459968f689c229d7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Transitions: []
+  Transitions:
+  - State: {fileID: 114143999856155358, guid: 3a676aa6faf037e40b337b62f53c0a1d, type: 2}
+    Enter: 0
   Name: Idle
   DebugMode: 0
   TransitionPass: 0
@@ -70,12 +72,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fab6d7fab37c92d4ba8134d1291a5b11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enable: 1
-  Probability: 50
-  Smooth: 1
-  Delay: 3
-  DeadZone: 0
-  Limits: {x: 90, y: -90}
+  Type: 1
+  Index: 0
+  Probability: 65
+  Rate: 60
+  Idles: 00000000010000000200000003000000
+  Turn: 1
+  TurnRate: 45
+  Turns: 00000000010000000200000003000000
+  Sequence: 00000000030000000100000002000000
+  RootMotion: 1
 --- !u!114 &114981819145656816
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -88,8 +94,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DebugMode: 1
-  Controller: {fileID: 143049208443564804, guid: fa9524ea8ce59e84d9124c2b62f63009,
-    type: 2}
   Enable: 1
   Memory: 1
   FieldOfView: 90
@@ -97,12 +101,13 @@ MonoBehaviour:
   Instinct: 0
   PlayerTag: Player
   Tags: []
-  ThreatGainRate: 8
-  ThreatLossRate: 8
+  ThreatGainRate: 35
+  ThreatLossRate: 20
   ThreatLimit: 100
   ThreatDelay: 0.55
   ThreatLossMultiplier: 2
   ThreatGainMultiplier: 2
+  ThreatEnter: Combat
 --- !u!135 &135143669372264476
 SphereCollider:
   m_ObjectHideFlags: 1

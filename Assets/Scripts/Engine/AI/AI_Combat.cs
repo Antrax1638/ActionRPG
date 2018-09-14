@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(State))]
 public class AI_Combat : MonoBehaviour
@@ -14,88 +17,127 @@ public class AI_Combat : MonoBehaviour
         Ultra
     }
 
-    [Header("Components")]
-    [SerializeField]private CharacterController Controller;
-
+    [SerializeField] private bool DebugMode = false;
+    
     [Header("Combat")]
     public bool Enable = false;
     public GameObject Target;
-    public Vector3 TargetPosition;
     public AI_Dificulty Dificulty = AI_Dificulty.Low;
     public float MinDistance;
     public float MaxDistance;
+    public float Range;
+    public float AngularSmooth;
+    public float DamageRate = 5;
 
-    //[Header("Threat")]
-    //public float 
+    [Header("States Transitions")]
+    public string ReturnState;
+    //public string AttackState;
 
-    private State StateComponent;
-    private Dictionary<int, float> DamageSource = new Dictionary<int, float>();
-    private Vector3 InitialCombatPosition;
-
+    private Vector3 InitialPosition,TargetPosition,TargetDirection;
+    private Quaternion InitialRotation;
     private float TargetDistance,InitialDistance;
 
-	void Awake () {
+    //Damage Factors:
+    Dictionary<string, float> DamageTaken = new Dictionary<string, float>();
+
+    //Components:
+    private State StateComponent;
+    private AI_Global GlobalComponent;
+    private NavMeshAgent NavMeshAgentComponent;
+    private Animator AnimatorComponent;
+
+    void Awake ()
+    {
         StateComponent = GetComponent<State>();
         if (!StateComponent)
             Debug.LogError("AI_Combat: State component is null or invalid");
 
-        if (!Controller)
-            Debug.LogError("AI_Combat: Controller component is null or invalid");
+       
+        NavMeshAgentComponent = GetComponentInParent<NavMeshAgent>();
+        if (!NavMeshAgentComponent)
+            Debug.LogError("AI_Combat: NavMeshAgent component is null or invalid");
 
-        if (!Target)
-            Debug.LogWarning("AI_Combat: Target object is null or invalid");
+
+        GlobalComponent = transform.root.GetComponentInChildren<AI_Global>();
+        if (GlobalComponent)
+            Target = GlobalComponent.Target;
+        else
+            Debug.LogError("AI_Combat: Global component is null or invalid");
+
+
+        AnimatorComponent = GetComponentInParent<Animator>();
+        if (!AnimatorComponent)
+            Debug.LogError("AI_Combat: Animator component is null or invalid");
 
         gameObject.SetActive(Enable);
-        InitialCombatPosition = transform.root.position;
-	}
+        InitialPosition = transform.root.position;
+        InitialRotation = transform.root.rotation;
+        AnimatorComponent.applyRootMotion = false;
+
+        InvokeRepeating("UpdateDamageTaken", 0.0f, DamageRate);
+    }
 
 	void Update ()
     {
-        InitialDistance = Vector3.Distance(transform.root.position, InitialCombatPosition);
+        InitialDistance = Vector3.Distance(transform.root.position, InitialPosition);
         if (Target)
         {
             TargetDistance = Vector3.Distance(transform.root.position, Target.transform.position);
-        }
-        
-
-        if(InitialDistance <= MinDistance)
-        {
-            Debug.Log("Stay Idle");
-        }
-
-        if (Controller && Controller.isGrounded)
-        {
+            TargetDirection = Target.transform.position - transform.root.position;
+            TargetPosition = Target.transform.position - (TargetDirection.normalized * Range);
+            NavMeshAgentComponent.SetDestination(TargetPosition);
             
+            if ((TargetDistance - Range) >= MaxDistance)
+            {
+                Target = null;
+                GlobalComponent.Target = null;
+                NavMeshAgentComponent.SetDestination(InitialPosition);
+            }
         }
-	}
 
-    public void AddTarget(int id)
-    {
-        if (!DamageSource.ContainsKey(id))
+        float NormalizedSpeed = Mathf.Clamp01(NavMeshAgentComponent.velocity.magnitude / NavMeshAgentComponent.speed);
+        AnimatorComponent.SetFloat("Speed", NormalizedSpeed);
+
+
+        if (NavMeshAgentComponent.remainingDistance <= 0.0f && NavMeshAgentComponent.pathStatus == NavMeshPathStatus.PathComplete)
         {
-            DamageSource.Add(id, 0.0f);
+            if (Target)
+            {
+                
+                Quaternion NewRotation = Quaternion.LookRotation(Target.transform.position - transform.position);
+                transform.root.rotation = Quaternion.Lerp(transform.root.rotation, NewRotation, AngularSmooth * Time.deltaTime);
+                Debug.Log("Attack and Watch");
+            }
+            else
+            {
+                transform.rotation = InitialRotation;
+                if(StateComponent.Contains(ReturnState))
+                    StateComponent.GetTransitionByName(ReturnState).Enter = true;
+            }
+        }
+
+    }
+    
+    void UpdateDamageTaken()
+    {
+        float[] CachedValues = new float[DamageTaken.Values.Count];
+        DamageTaken.Values.CopyTo(CachedValues,0);
+        float MaxValue = Mathf.Max(CachedValues);
+        string MaxValueKey = DamageTaken.FirstOrDefault(x => x.Value == MaxValue).Key;
+        Debug.Log("Damage Key:" + MaxValueKey + " Value:" + MaxValue);
+        CachedValues = new float[0];
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (DebugMode) {
+
+            if (Target)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(Target.transform.position + Target.transform.up, 0.1f);
+            }
+                
         }
     }
-
-    public bool RemoveTarget(int id)
-    {
-        return DamageSource.Remove(id);
-    }
-
-    public void AddDamage(int id, float Damage)
-    {
-        if (DamageSource.ContainsKey(id))
-        {
-            DamageSource[id] += Damage;
-        }
-    }
-
-    public void RemoveDamage(int id, float Damage)
-    {
-        if (DamageSource.ContainsKey(id))
-        {
-            DamageSource[id] -= Damage;
-        }
-    }
-
 }

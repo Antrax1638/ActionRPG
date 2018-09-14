@@ -52,7 +52,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d773c3cbb60d165459968f689c229d7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Transitions: []
+  Transitions:
+  - State: {fileID: 114071137896145910, guid: 4db1f7b3bdda2ae42bb8c9ad6db64855, type: 2}
+    Enter: 0
   Name: Combat
   DebugMode: 0
   TransitionPass: 0
@@ -68,11 +70,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f36fc728b444242815db9f70a43a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Controller: {fileID: 143049208443564804, guid: fa9524ea8ce59e84d9124c2b62f63009,
-    type: 2}
+  DebugMode: 1
   Enable: 1
   Target: {fileID: 0}
-  TargetPosition: {x: 0, y: 0, z: 0}
   Dificulty: 0
   MinDistance: 0
-  MaxDistance: 20
+  MaxDistance: 6.5
+  Range: 2
+  AngularSmooth: 5
+  DamageRate: 5
+  ReturnState: Idle

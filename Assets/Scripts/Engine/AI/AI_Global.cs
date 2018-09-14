@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class AI_Global : MonoBehaviour
 {
-    public enum AI_State
-    {
-        Idle,
-        Patrol,
-        Combat,
-        None
-    }
+
+
+    [SerializeField] private bool DebugMode = false;
 
     [Header("Global Parameters")]
-    public AI_State State = AI_State.Idle;
-    public Transform Target;
+    public GameObject Target;
+    public string State;
 
     [HideInInspector] public Vector3 InitialPosition { get { return initialPosition; } }
     [HideInInspector] public Quaternion InitialRotation { get { return initialRotation; } }
@@ -30,6 +26,10 @@ public class AI_Global : MonoBehaviour
     {
         ManagerComponent = GetComponent<FSMManager>();
         if (!ManagerComponent)
+            ManagerComponent = GetComponentInParent<FSMManager>();
+        if (!ManagerComponent)
+            ManagerComponent = GetComponentInChildren<FSMManager>();
+        if (!ManagerComponent)
             Debug.LogError("AI_Global: FSM Manager component is null or invalid.");
 
         RootComponent = transform.root;
@@ -40,6 +40,25 @@ public class AI_Global : MonoBehaviour
     private void Update()
     {
         if (ManagerComponent)
+        {
+            State = ManagerComponent.Default.name;
             currentState = ManagerComponent.Default.gameObject;
+            
+        }
+    }
+    
+    private void OnDrawGizmos()
+    {
+        if (DebugMode)
+        {
+            Gizmos.DrawLine(transform.position, initialPosition);
+            Vector3 TargetPosition = (Target) ? Target.transform.position : transform.position;
+            Gizmos.DrawLine(transform.position, TargetPosition);
+
+            if (Target) {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireCube(TargetPosition, new Vector3(1, 1, 1));
+            }
+        }
     }
 }
