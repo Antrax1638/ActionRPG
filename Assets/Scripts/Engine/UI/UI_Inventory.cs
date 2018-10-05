@@ -135,23 +135,32 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 		}
 	}
 
-    protected virtual void HighLightUpdate()
+    public void EnterHighLight()
     {
-        if (Highlight && MouseOver && HoveredSlot != null && UI_Slot.DragObject != null)
+        if (Highlight && HoveredSlot != null && UI_Slot.DragObject != null)
         {
+            UI_InventorySlot Slot;
             UI_Drag DragObject = UI_Slot.DragObject.GetComponent<UI_Drag>();
             Vector2Int Position = (DragObject) ? DragObject.DragPosition : new Vector2Int(-1,-1);
 
-            if (Position.x >= 0 && Position.y >= 0 && Position.x < GridCells.GetLength(0) && Position.y < GridCells.GetLength(1))
+            print(HoveredSlot.Position);
+            for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x; x++)
             {
-                UI_InventorySlot SlotObject = GridCells[Position.x, Position.y].GetComponent<UI_InventorySlot>();
-                if (SlotObject)
+                for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y; y++)
                 {
-                    print("H:" + HoveredSlot.name);
-
+                    Slot = GridCells[x, y].GetComponent<UI_InventorySlot>();
+                    if (Slot) {
+                        Slot.GetImage("Frame").color = Color.red;
+                        Slot.GetImage("Background").color = Color.red;
+                    }
                 }
             }
         }
+    }
+
+    public void ExitHighLight()
+    {
+
     }
 
     protected void DebugLog(string info)

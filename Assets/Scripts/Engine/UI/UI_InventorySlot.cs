@@ -85,7 +85,9 @@ public class UI_InventorySlot : UI_Slot
             ParentInventory.HoveredSlot = this;
 
         base.OnPointerEnter (Data);
-	}
+
+        ParentInventory.EnterHighLight();
+    }
 
 	public override void OnPointerExit(PointerEventData Data)
 	{

@@ -70,7 +70,7 @@ MonoBehaviour:
   DragIgnore: 1
   DragColor: {r: 1, g: 1, b: 1, a: 1}
   DropColor: {r: 1, g: 1, b: 1, a: 1}
-  DragOffset: {x: 20, y: -20}
+  DragOffset: {x: 0, y: 0}
   DragIcon: {fileID: 0}
   DragPosition: {x: 0, y: 0}
   DragSize: {x: 1, y: 1}
