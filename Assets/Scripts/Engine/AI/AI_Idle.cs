@@ -30,6 +30,12 @@ public class AI_Idle : MonoBehaviour
     public List<int> Sequence = new List<int>();
     [SerializeField] bool RootMotion = false;
 
+    [Header("Patrol")]
+    public bool Patrol;
+    public float PatrolTime;
+    public string PatrolState;
+    [Range(0,100)]public float PartolProbability;
+
     private Transform RootComponent;
     private State StateComponent;
     private Animator AnimatorComponent;
@@ -72,7 +78,7 @@ public class AI_Idle : MonoBehaviour
         }
 
         AnimatorComponent.applyRootMotion = RootMotion;
-
+        if (Patrol) Invoke("StartPatrol", PatrolTime);
 	}
 
     private void Update()
@@ -107,8 +113,11 @@ public class AI_Idle : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void StartPatrol()
     {
-        //RootComponent.rotation = AnimatorComponent.rootRotation;
+        bool PatrolChance = (Random.Range(0.0f, 100.0f) <= PartolProbability);
+
+        if (StateComponent.Contains(PatrolState))
+            StateComponent.GetTransitionByName(PatrolState).Enter = true;
     }
 }

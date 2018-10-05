@@ -1,0 +1,43 @@
+{
+    "Name": "Minimun",
+    "Description": "Random Range Minimun Values",
+    "Id": -1,
+    "Type": 4,
+    "Stats": {
+        "Strength": 0,
+        "Agility": 0,
+        "Dexterity": 0,
+        "Inteligence": 0,
+        "Endurance": 0,
+        "Luck": 0,
+        "Health": 0.0,
+        "MaxHealth": 5.0,
+        "HealthRegeneration": 1.0,
+        "Energy": 0.0,
+        "MaxEnergy": 0.0,
+        "EnergyRegeneration": 0.0,
+        "Shield": 0.0,
+        "ShieldRegeneration": 0.0,
+        "Damage": 0.0,
+        "DamageMultiplier": 0.0,
+        "AttackSpeed": 0.0,
+        "Range": 0,
+        "CriticalChance": 0.0,
+        "CriticalMultiplier": 0.0,
+        "CriticalOverflow": 0.0,
+        "Armor": 0,
+        "ElementalArmor": 0,
+        "DamageReduction": 0.0,
+        "Block": 0.0,
+        "BlockChance": 0.0,
+        "Evasion": 0.0,
+        "EvasionChance": 0.0,
+        "ColdownReduction": 0.0,
+        "Speed": 0.0,
+        "VisionRadius": 0.0
+    },
+    "Button": {
+        "instanceID": 8310
+    },
+    "CanvasTag": "MainCanvas"
+}

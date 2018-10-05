@@ -6,6 +6,7 @@ public class AI_State : MonoBehaviour
 {
     [Header("State Properties:")]
     public bool Visible = true;
+    public bool LookAt;
     public float Smooth;
     public Vector3 MinSize;
     public Vector3 MaxSize;

@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using LitJson;
 
 public class ItemManager : MonoBehaviour
@@ -15,6 +16,27 @@ public class ItemManager : MonoBehaviour
     public string Path = "";
     public string Extension = ".json";
 
+    [Header("User Iterface")]
+    [SerializeField] private string Tag = "Item";
+    [SerializeField] private GameObject Preview;
+    [SerializeField] private string Canvas = "MainCanvas";
+
+    [Header("Static")]
+    [Tooltip("Player controller reference")] public PlayerController Controller;
+    [Tooltip("Player character reference")] public Character Character;
+
+    [Header("Actions")]
+    public string LeftClickAction = "Fire1";
+
+    [HideInInspector] public GameObject SelectedItem { get { return Object; } }
+
+    private Text PreviewTextComponent;
+    private Item SelectedItemComponent;
+    private RectTransform PreviewTransform;
+    private GameObject Object;
+    RaycastHit Hit;
+    bool HitPending;
+
     private void Awake()
     {
         if (_Instance == null)
@@ -24,6 +46,57 @@ public class ItemManager : MonoBehaviour
         }
         else
             Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        GameObject MainCanvas = GameObject.FindGameObjectWithTag(Canvas);
+        GameObject ButtonPrefab = Preview;
+        Preview = Instantiate(ButtonPrefab, MainCanvas.transform);
+        Preview.name = "UI_ItemPreview";
+        PreviewTransform = Preview.transform as RectTransform;
+        PreviewTextComponent = Preview.GetComponentInChildren<Text>();
+    }
+
+    private void Update()
+    {
+       
+        if (Preview && Controller)
+        {
+            Vector3 Mouse = new Vector3(Input.mousePosition.x,Input.mousePosition.y, Camera.main.nearClipPlane);
+            Vector3 Direction = Camera.main.ScreenToWorldPoint(Mouse) - Camera.main.transform.position;
+            if (Physics.SphereCast(Camera.main.transform.position, 0.3f,Direction.normalized, out Hit, 999999))
+            {
+                if (Hit.collider.tag == Tag)
+                {
+                    Controller.Mode = InputMode.InterfaceOnly;
+                    HitPending = true;
+
+                    Preview.SetActive(true);
+                    PreviewTransform.anchoredPosition = Input.mousePosition;
+                    SelectedItemComponent = Hit.collider.gameObject.GetComponent<Item>();
+                    if (SelectedItemComponent)
+                    {
+                        PreviewTextComponent.text = SelectedItemComponent.Name;
+                        PreviewTextComponent.color = SelectedItemComponent.Rarity;
+                    }
+
+                    if (Input.GetButtonDown(LeftClickAction))
+                    {
+                        Object = Hit.collider.gameObject;
+                        Character.Inventory.AddItem(Object);
+                    }
+                }
+                else if(HitPending)
+                {
+                    Preview.SetActive(false);
+                    Controller.Mode = InputMode.GameOnly;
+                    HitPending = false;
+                }
+            }
+        }
+
+        
     }
 
     public void SaveItem(string Name,GameObject Prefab)
@@ -100,5 +173,10 @@ public class ItemManager : MonoBehaviour
     public GameObject Search(string Name)
     {
         return GameObject.Find(Name);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(Hit.point, 0.2f);
     }
 }

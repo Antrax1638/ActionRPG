@@ -12,6 +12,11 @@ public class AI_Global : MonoBehaviour
     public GameObject Target;
     public string State;
 
+    [Header("Stun")]
+    public bool Stun;
+    public float StunTime;
+    private float StunDeltaTime;
+
     [HideInInspector] public Vector3 InitialPosition { get { return initialPosition; } }
     [HideInInspector] public Quaternion InitialRotation { get { return initialRotation; } }
     [HideInInspector] public GameObject CurrentState { get { return currentState; } }
@@ -21,6 +26,7 @@ public class AI_Global : MonoBehaviour
     private Quaternion initialRotation;
     private GameObject currentState;
     private FSMManager ManagerComponent;
+    private Animator AnimatorComponent;
 
     private void Awake()
     {
@@ -31,6 +37,10 @@ public class AI_Global : MonoBehaviour
             ManagerComponent = GetComponentInChildren<FSMManager>();
         if (!ManagerComponent)
             Debug.LogError("AI_Global: FSM Manager component is null or invalid.");
+
+        AnimatorComponent = GetComponentInParent<Animator>();
+        if (!AnimatorComponent)
+            Debug.LogError("AI_Global: Animator component is null or invalid");
 
         RootComponent = transform.root;
         initialPosition = RootComponent.position;
@@ -44,6 +54,22 @@ public class AI_Global : MonoBehaviour
             State = ManagerComponent.Default.name;
             currentState = ManagerComponent.Default.gameObject;
             
+        }
+
+        if (Stun)
+        {
+            StunDeltaTime += Time.deltaTime;
+            AnimatorComponent.SetBool("Stun", Stun);
+            ManagerComponent.Default.gameObject.SetActive(false);
+
+            if (StunDeltaTime >= StunTime)
+            {
+                Stun = false;
+                StunDeltaTime = 0.0f;
+                ManagerComponent.Default.gameObject.SetActive(true);
+                AnimatorComponent.SetBool("Stun", Stun);
+            }
+            return;
         }
     }
     

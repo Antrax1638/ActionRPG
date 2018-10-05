@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum EItemType
 {
@@ -18,8 +19,15 @@ public class Item : MonoBehaviour
     public string Name;
     public string Description;
     public int Id;
+    public int Stack;
+    public int MaxStack;
     public EItemType Type = EItemType.None;
     public Stat Stats;
+    public Color Rarity = Color.white;
+
+    private RectTransform ButtonTransform;
+    private int State = -2;
+    private string Seed;
 
     public static bool operator ==(Item a,Item b)
     {
@@ -70,6 +78,11 @@ public class Item : MonoBehaviour
         return !(a == b);
     }
 
+    public bool Equal(GameObject Other)
+    {
+        return this == Other.GetComponent<Item>();
+    }
+
     public override bool Equals(object other)
     {
         return (this == (Item)other);
@@ -78,5 +91,77 @@ public class Item : MonoBehaviour
     public override int GetHashCode()
     {
         return base.GetHashCode();
+    }
+
+    protected virtual void Awake()
+    {
+        State = -1;
+    }
+
+    public virtual void OnPickUp()
+    {
+        Character PC = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Character>();
+        if (PC) {
+            PC.Inventory.AddItem(gameObject);
+        }
+
+        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<Collider>().enabled = false;
+        State = 0;
+    }
+
+    public virtual void OnDrop()
+    {
+        Character PC = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Character>();
+        if (PC)
+        {
+            PC.Inventory.RemoveItem(gameObject);
+        }
+
+        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<Rigidbody>().isKinematic = false;
+        GetComponent<Collider>().enabled = true;
+        State = -1;
+    }
+
+    public virtual void OnEquip()
+    { 
+        //WIP
+        State = 1;
+    }
+
+    protected void GenerateSeed()
+    {
+        Seed = "";
+        Seed += "S" + Stats.Strength;
+        Seed += "A" + Stats.Agility;
+        Seed += "D" + Stats.Dexterity;
+        Seed += "I" + Stats.Inteligence;
+        Seed += "E" + Stats.Endurance;
+        Seed += "L" + Stats.Luck;
+        Seed += "MaxHealth" + Stats.MaxHealth;
+        Seed += "HRegen" + Stats.HealthRegeneration;
+        Seed += "MaxEnergy" + Stats.MaxEnergy;
+        Seed += "ERegen" + Stats.EnergyRegeneration;
+        Seed += "Shield" + Stats.Shield;
+        Seed += "SRegen" + Stats.ShieldRegeneration;
+        Seed += "Damage" + Stats.Damage;
+        Seed += "DMult" + Stats.DamageMultiplier;
+        Seed += "ASpeed" + Stats.AttackSpeed;
+        Seed += "Range" + Stats.Range;
+        Seed += "CritChance" + Stats.CriticalChance;
+        Seed += "CritMult" + Stats.CriticalMultiplier;
+        Seed += "CritOver" + Stats.CriticalOverflow;
+        Seed += "Armor" + Stats.Armor;
+        Seed += "EArmor" + Stats.ElementalArmor;
+        Seed += "DamageRed" + Stats.DamageReduction;
+        Seed += "Block" + Stats.Block;
+        Seed += "BChance" + Stats.BlockChance;
+        Seed += "Evasion" + Stats.Evasion;
+        Seed += "EChance" + Stats.EvasionChance;
+        Seed += "CD" + Stats.ColdownReduction;
+        Seed += "Speed" + Stats.Speed;
+        Seed += "VRadius" + Stats.VisionRadius;
     }
 }

@@ -27,15 +27,28 @@ public class AI_Combat : MonoBehaviour
     public float MaxDistance;
     public float Range;
     public float AngularSmooth;
-    public float DamageRate = 5;
+    [SerializeField] private float UpdateRate = 5;
+
+    [Header("Attack")]
+    public List<int> AttackList = new List<int>();
+    public float AttackSpeed;
+    private bool AttackState = false;
+    private int CurrentAttackId = 0;
+    private float CurrentAttackDelta = 0.0f;
+
+    [Header("Fear")]
+    public bool Fear = false;
+    public float FearRate;
+    public Vector2 AngleLimits = new Vector2(0,360);
+    public Vector2 RangeLimits = new Vector2(1.0f, 8.0f);
 
     [Header("States Transitions")]
     public string ReturnState;
-    //public string AttackState;
+    
 
     private Vector3 InitialPosition,TargetPosition,TargetDirection;
     private Quaternion InitialRotation;
-    private float TargetDistance,InitialDistance;
+    private float TargetDistance,InitialDistance,FearDeltaTime;
 
     //Damage Factors:
     Dictionary<string, float> DamageTaken = new Dictionary<string, float>();
@@ -73,12 +86,32 @@ public class AI_Combat : MonoBehaviour
         InitialPosition = transform.root.position;
         InitialRotation = transform.root.rotation;
         AnimatorComponent.applyRootMotion = false;
+        FearDeltaTime = 0.0f;
 
-        InvokeRepeating("UpdateDamageTaken", 0.0f, DamageRate);
+        InvokeRepeating("UpdateDamageTaken", 0.0f, UpdateRate);
     }
 
 	void Update ()
     {
+        float NormalizedSpeed = Mathf.Clamp01(NavMeshAgentComponent.velocity.magnitude / NavMeshAgentComponent.speed);
+        AnimatorComponent.SetFloat("Speed", NormalizedSpeed);
+        AnimatorComponent.SetFloat("AttackSpeed", AttackSpeed);
+
+        if (Fear)
+        {
+            FearDeltaTime += Time.deltaTime;
+            if (FearDeltaTime >= FearRate)
+            {
+                float Angle = UnityEngine.Random.Range(AngleLimits.x, AngleLimits.y);
+                float Range = UnityEngine.Random.Range(RangeLimits.x, RangeLimits.y);
+                Vector3 NewPosition = Quaternion.AngleAxis(Angle, Vector3.up) * (transform.root.forward * Range);
+                NavMeshAgentComponent.SetDestination(NewPosition);
+                FearDeltaTime = 0.0f;
+            }
+
+            return;
+        }
+
         InitialDistance = Vector3.Distance(transform.root.position, InitialPosition);
         if (Target)
         {
@@ -95,18 +128,31 @@ public class AI_Combat : MonoBehaviour
             }
         }
 
-        float NormalizedSpeed = Mathf.Clamp01(NavMeshAgentComponent.velocity.magnitude / NavMeshAgentComponent.speed);
-        AnimatorComponent.SetFloat("Speed", NormalizedSpeed);
-
-
         if (NavMeshAgentComponent.remainingDistance <= 0.0f && NavMeshAgentComponent.pathStatus == NavMeshPathStatus.PathComplete)
         {
             if (Target)
             {
-                
                 Quaternion NewRotation = Quaternion.LookRotation(Target.transform.position - transform.position);
                 transform.root.rotation = Quaternion.Lerp(transform.root.rotation, NewRotation, AngularSmooth * Time.deltaTime);
-                Debug.Log("Attack and Watch");
+                
+                RaycastHit AttackHit;
+                if(Physics.Raycast(transform.root.position, TargetDirection, out AttackHit, Range))
+                {
+                    if (!AttackState)
+                    {
+                        AttackState = true;
+                        CurrentAttackId = (CurrentAttackId >= AttackList.Count) ? 0 : CurrentAttackId;
+                        AnimatorComponent.SetTrigger("Attack");
+                        AnimatorComponent.SetInteger("AttackType", AttackList[CurrentAttackId]);
+                        CurrentAttackDelta = 0.0f;
+                        CurrentAttackId++;
+                    }
+                    else
+                    {
+                        CurrentAttackDelta += Time.deltaTime;
+                        AttackState = (CurrentAttackDelta <= AnimatorComponent.GetCurrentAnimatorStateInfo(0).length);
+                    }
+                }
             }
             else
             {
@@ -125,6 +171,11 @@ public class AI_Combat : MonoBehaviour
         float MaxValue = Mathf.Max(CachedValues);
         string MaxValueKey = DamageTaken.FirstOrDefault(x => x.Value == MaxValue).Key;
         Debug.Log("Damage Key:" + MaxValueKey + " Value:" + MaxValue);
+
+        GameObject ObjectFound = GameObject.Find(MaxValueKey);
+        if(ObjectFound)
+            Target = GameObject.Find(MaxValueKey);
+
         CachedValues = new float[0];
     }
 

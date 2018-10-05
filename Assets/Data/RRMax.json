@@ -1,0 +1,43 @@
+{
+    "Name": "Maximun",
+    "Description": "Random Range Maximun Values",
+    "Id": -1,
+    "Type": 4,
+    "Stats": {
+        "Strength": 10,
+        "Agility": 10,
+        "Dexterity": 10,
+        "Inteligence": 10,
+        "Endurance": 10,
+        "Luck": 10,
+        "Health": 0.0,
+        "MaxHealth": 25.0,
+        "HealthRegeneration": 3.8,
+        "Energy": 0.0,
+        "MaxEnergy": 25.0,
+        "EnergyRegeneration": 3.8,
+        "Shield": 25.0,
+        "ShieldRegeneration": 3.8,
+        "Damage": 5.2,
+        "DamageMultiplier": 0.5,
+        "AttackSpeed": 0.1,
+        "Range": 1,
+        "CriticalChance": 0.85,
+        "CriticalMultiplier": 0.5,
+        "CriticalOverflow": 0.05,
+        "Armor": 35,
+        "ElementalArmor": 35,
+        "DamageReduction": 0.90,
+        "Block": 2.0,
+        "BlockChance": 0.90,
+        "Evasion": 2.0,
+        "EvasionChance": 0.90,
+        "ColdownReduction": 0.045,
+        "Speed": 0.3,
+        "VisionRadius": 0.08
+    },
+    "Button": {
+        "instanceID": 8310
+    },
+    "CanvasTag": "MainCanvas"
+}

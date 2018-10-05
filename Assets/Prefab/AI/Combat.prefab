@@ -35,7 +35,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1769468483088402}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 43.169952, y: -22.198072, z: 53.38466}
+  m_LocalPosition: {x: 43.169952, y: 0, z: 53.38466}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -76,7 +76,13 @@ MonoBehaviour:
   Dificulty: 0
   MinDistance: 0
   MaxDistance: 6.5
-  Range: 2
+  Range: 1.5
   AngularSmooth: 5
-  DamageRate: 5
+  UpdateRate: 5
+  AttackList: 000000000100000002000000
+  AttackSpeed: 1
+  Fear: 0
+  FearRate: 0
+  AngleLimits: {x: 0, y: 360}
+  RangeLimits: {x: 1, y: 8}
   ReturnState: Idle

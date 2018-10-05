@@ -2,20 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EEnergyType
+{
+    None,
+    Mana,
+    Fury,
+    Soul,
+    Ki,
+    Wrath,
+    Spirit
+}
+
 public class Character : MonoBehaviour
 {
-    [Header("Component")]
-    public GameObject Controller;
+    [Header("Character")]
+    public string Name;
+    public int Level;
+    public EEnergyType EnergyType;
+    public Stat Stats;
 
-    protected CharacterController CharacterControllerComponent = null;
+    public EquipamentManager Equipament;
+    public InventoryManager Inventory;
 
-	protected virtual void Awake ()
+    private void Update()
     {
-        CharacterControllerComponent = Controller.GetComponent<CharacterController>();
-        if (!CharacterControllerComponent) CharacterControllerComponent = Controller.GetComponentInChildren<CharacterController>();
-        if (!CharacterControllerComponent) CharacterControllerComponent = Controller.GetComponentInParent<CharacterController>();
-        if (!CharacterControllerComponent) Debug.LogError("Character: Character Controller is null or invalid");
+        print(Inventory.Length);
     }
-	
-	
+
 }

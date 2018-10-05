@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum KeyModifier
 {
-    Crtl,
+    None,
+    Ctrl,
     Shift,
     Alt,
     Cmd
@@ -12,11 +13,11 @@ public enum KeyModifier
 
 public class Utils
 {
-	public static bool GetButtonDown(string name,KeyModifier key)
+	public static bool GetButtonDown(string name, KeyModifier key)
     {
         switch (key)
         {
-            case KeyModifier.Crtl: 
+            case KeyModifier.Ctrl: 
                 if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     return Input.GetButtonDown(name);
                 break;
@@ -40,7 +41,7 @@ public class Utils
     {
         switch (key)
         {
-            case KeyModifier.Crtl:
+            case KeyModifier.Ctrl:
                 if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     return Input.GetButtonUp(name);
                 break;
