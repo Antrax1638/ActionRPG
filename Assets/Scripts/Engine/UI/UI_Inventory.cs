@@ -121,16 +121,15 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     protected void Start()
     {
-        GameObject HighLightCache = HighLightObject;
-        HighLightObject = Instantiate(HighLightCache, transform);
+        HighLightObject = Instantiate(HighLightObject, transform);
         HighLightObject.transform.position = Vector3.zero;
         HighLightObject.SetActive(false);
+        print(HighLightObject.name);
     }
 
     protected void Update()
     {
-        if (HighLightObject && HighLightObject.activeInHierarchy && !UI_Slot.DragObject)
-            ExitHighLight(true);
+        ExitHighLight();
 
         //HighLightUpdate();
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -180,6 +179,7 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             HighLightObject.SetActive(true);
             bool RangeValid = true;
+            bool SlotValid = true; 
             RectTransform HLTransform = HighLightObject.transform as RectTransform;
             RectTransform HLTransformHover = HoveredSlot.transform as RectTransform;
             UI_Drag DragObject = UI_Slot.DragObject.GetComponent<UI_Drag>();
@@ -197,13 +197,26 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
             if (RangeValid)
             {
-                for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x; x++)
+                UI_InventorySlot Current = null;
+                for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x + 1; x++)
                 {
-                    for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y; y++)
+                    for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y + 1; y++)
                     {
-
+                        Current = GridCells[x, y].GetComponent<UI_InventorySlot>();
+                        if (Current && !ValidateItemFormat(Current.Item))
+                        {
+                            SlotValid &= true;
+                        }
+                        else
+                            SlotValid &= false;
                     }
                 }
+
+                HighLightObject.GetComponent<Image>().color = (SlotValid) ? HighlightValid : HighlightInvalid;
+            }
+            else
+            {
+                HighLightObject.GetComponent<Image>().color = HighlightInvalid;
             }
 
             /*bool SlotValid = true;
@@ -244,20 +257,23 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    public void ExitHighLight(bool Check)
+    public void ExitHighLight()
     {
-        HighLightObject.SetActive(false);
-
-        /*if (Highlight && UI_Slot.DragObject != null || (Highlight && Check))
+        if (Highlight && HighLightObject)
         {
-            for (int Index = 0; Index < PendingSlots.Count; Index++)
+            if (HighLightObject.activeInHierarchy && UI_Slot.DragObject == null)
             {
-                Vector2Int CurrentPosition = PendingSlots.Dequeue();
-                UI_InventorySlot HSlot = GridCells[CurrentPosition.x, CurrentPosition.y].GetComponent<UI_InventorySlot>();
-                HSlot.GetImage("Frame").color = Color.white;
-                HSlot.GetImage("Background").color = Color.white;
+                HighLightObject.SetActive(false);
+                HighLightObject.transform.position = Vector3.zero;
+                /*for (int Index = 0; Index < PendingSlots.Count; Index++)
+                {
+                    Vector2Int CurrentPosition = PendingSlots.Dequeue();
+                    UI_InventorySlot HSlot = GridCells[CurrentPosition.x, CurrentPosition.y].GetComponent<UI_InventorySlot>();
+                    HSlot.GetImage("Frame").color = Color.white;
+                    HSlot.GetImage("Background").color = Color.white;
+                }*/
             }
-        }*/
+        }
     }
 
     public Vector2Int AddItem(UI_Item NewItem)

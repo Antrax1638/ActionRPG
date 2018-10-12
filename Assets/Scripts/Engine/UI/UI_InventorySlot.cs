@@ -98,7 +98,7 @@ public class UI_InventorySlot : UI_Slot
             UI_Inventory.HoveredSlot = null;
 
         base.OnPointerExit (Data);
-        ParentInventory.ExitHighLight(false);
+        ParentInventory.ExitHighLight();
 	}
 
 	public override void OnDrop (GameObject Slot)
