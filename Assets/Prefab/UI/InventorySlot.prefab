@@ -123,7 +123,7 @@ MonoBehaviour:
     Icon: {fileID: 0}
     Size: {x: -1, y: -1}
   RemoveEvent: 1
-  Remove: 0
+  Remove: 1
 --- !u!114 &114551119321832142
 MonoBehaviour:
   m_ObjectHideFlags: 1

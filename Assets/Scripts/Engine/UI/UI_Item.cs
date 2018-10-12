@@ -28,12 +28,12 @@ public class UI_Item
 
 	public static bool operator==(UI_Item x,UI_Item y)
 	{
-        return (x.Id == y.Id) && (x.Size == y.Size) && (x.Icon == y.Icon);
+        return (x.Id == y.Id) && (x.Size == y.Size);
 	}
 
 	public static bool operator!=(UI_Item x,UI_Item y)
 	{
-        return (x.Id != y.Id) && (x.Size != y.Size) && (x.Icon != y.Icon);
+        return (x.Id != y.Id) && (x.Size != y.Size);
     }
 
     public virtual bool Equal(UI_Item other)

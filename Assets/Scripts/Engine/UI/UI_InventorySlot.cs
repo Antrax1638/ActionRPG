@@ -25,24 +25,27 @@ public class UI_InventorySlot : UI_Slot
 	protected override void Awake()
 	{
 		base.Awake ();
-
-        if (Inventory) {
+        if (Inventory)
+        {
             ParentInventory = GetComponentInParent<UI_Inventory>();
             if (!ParentInventory)
                 Debug.LogError("UI_InventorySlot: inventory class component is null");
         }
-		
-	}
+    }
 
-	protected override void Start()
+    protected override void Start()
 	{
 		base.Start ();
+        
         SetVisibility(Visible);
 	}
 
 	protected override void Update()
 	{
 		base.Update ();
+
+        if (GetImage("Icon").gameObject.activeInHierarchy && Item == UI_Item.invalid)
+            Debug.Log("Active and Null");
 	}
 
 	//Operations:
@@ -57,6 +60,7 @@ public class UI_InventorySlot : UI_Slot
             if (DragObject && Item != UI_Item.invalid)
             {
                 DragObject.DragSize = Item.Size;
+                DragObject.Source = ParentInventory.gameObject;
             }
         }
         
@@ -81,20 +85,20 @@ public class UI_InventorySlot : UI_Slot
 	public override void OnPointerEnter(PointerEventData Data)
 	{
         ToolTip = (Item != UI_Item.invalid && ToolTipPrefab);
-        if (Inventory && ParentInventory)
-            ParentInventory.HoveredSlot = this;
+        if (Inventory)
+            UI_Inventory.HoveredSlot = this;
 
         base.OnPointerEnter (Data);
-
         ParentInventory.EnterHighLight();
     }
 
 	public override void OnPointerExit(PointerEventData Data)
 	{
-        if (Inventory && ParentInventory)
-            ParentInventory.HoveredSlot = null;
+        if (Inventory)
+            UI_Inventory.HoveredSlot = null;
 
         base.OnPointerExit (Data);
+        ParentInventory.ExitHighLight(false);
 	}
 
 	public override void OnDrop (GameObject Slot)
@@ -102,11 +106,12 @@ public class UI_InventorySlot : UI_Slot
 		if (Visible == Visibility.Hidden)
 			return;
 
-		UI_InventorySlot InventoryComponent = Slot.GetComponent<UI_InventorySlot> ();
-		if (Inventory && InventoryComponent) 
+		UI_InventorySlot SlotComponent = Slot.GetComponent<UI_InventorySlot> ();
+		if (Inventory && SlotComponent) 
 		{
-			UI_Item Item = (Remove == RemoveType.RemoveOnDrag) ? TempDrag : this.Item;
-            Vector2Int NewPosition = ParentInventory.AddItem (Item, InventoryComponent.Position);
+            UI_Item Item = (Remove == RemoveType.RemoveOnDrag) ? TempDrag : this.Item;
+            Vector2Int NewPosition = SlotComponent.ParentInventory.AddItem (Item, SlotComponent.Position);
+            
             if (NewPosition != UI_Inventory.InvalidIndex)
             {
                 if (Remove == RemoveType.RemoveOnDrop && RemoveEvent)
@@ -118,13 +123,13 @@ public class UI_InventorySlot : UI_Slot
             {
                 if (Remove == RemoveType.RemoveOnDrag)
                     ParentInventory.AddItem(Item, Position);
-            } 
-            
+            }
 		}
 
         UI_EquipSlot EquipComponent = Slot.GetComponent<UI_EquipSlot>();
         if (EquipComponent && EquipComponent.Inventory)
         {
+            
             UI_Item Item = (Remove == RemoveType.RemoveOnDrag) ? TempDrag : this.Item;
             Vector2Int NewId = EquipComponent.Inventory.AddItem(Item, Slot);
             if(NewId != UI_Inventory.InvalidIndex)
@@ -140,7 +145,7 @@ public class UI_InventorySlot : UI_Slot
                     ParentInventory.AddItem(Item, Position);
             }
 
-            print("Cast To Equip slot");
+            Debug.Log("Cast To Equip slot");
         }
 	}
 }

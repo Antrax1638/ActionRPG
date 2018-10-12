@@ -54,7 +54,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	protected static GameObject DragComponent,ToolTipComponent;
 	private List<RaycastResult> RayCastResults = new List<RaycastResult>();
 	private GameObject[] HoverObjects;
-	private GameObject HoverObject;
+	protected static GameObject HoverObject;
 	private bool DragKey;
 	private GameObject OverlayObject;
 

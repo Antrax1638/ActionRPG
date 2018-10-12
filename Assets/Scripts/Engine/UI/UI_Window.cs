@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDragHandler, IEndDragHandler {
+public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDragHandler, IEndDragHandler
+{
+    [SerializeField] private bool AdjustToContent = false;
 	
 	[Header("Drag Properties:")]
 	public bool Draggable;
@@ -27,6 +29,7 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 	protected RectTransform TransformComponent;
 	protected bool Dragged,IsActivated;
     private bool CanDrag = true;
+    private bool[] ActiveChilds;
 
 
 	protected virtual void Awake ()
@@ -39,9 +42,19 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		if (TransformComponents == null)
 			Debug.Log("UI_Window: transform components are null");
 
+        ActiveChilds = new bool[TransformComponents.Length];
+        
+
 		InitialPivotPoint = TransformComponent.pivot;
 		IsActivated = gameObject.activeInHierarchy;
 	}
+
+    protected virtual void Start()
+    {
+        if (AdjustToContent) {
+            //WIP
+        }
+    }
 		
 	protected virtual void Update()
 	{
@@ -126,7 +139,10 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		
 	public void CloseWindow()
 	{
-		if (TransformComponents != null) {
+        for (int i = 0; i < ActiveChilds.Length; i++)
+            ActiveChilds[i] = TransformComponents[i].gameObject.activeInHierarchy;
+
+        if (TransformComponents != null) {
 			for (int i = 0; i < TransformComponents.Length; i++) {
 				TransformComponents [i].gameObject.SetActive (false);
 			}
@@ -140,7 +156,7 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 	{
 		if (TransformComponents != null) {
 			for (int i = 0; i < TransformComponents.Length; i++) {
-				TransformComponents [i].gameObject.SetActive (true);
+				TransformComponents [i].gameObject.SetActive (ActiveChilds[i]);
 			}
 		}
 		IsActivated = true;

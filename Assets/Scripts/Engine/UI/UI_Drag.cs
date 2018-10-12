@@ -20,6 +20,7 @@ public class UI_Drag : MonoBehaviour, ICanvasRaycastFilter
     public Vector2Int DragSize = Vector2Int.one;
 
     public bool IsDrag { get { return MouseDrag; } }
+    [HideInInspector] public GameObject Source;
 
     private bool MouseDrag;
 	private Image ImageComponent;
