@@ -80,3 +80,8 @@ public class Utils
     }
 
 }
+
+public class EnumFlagsAttribute : PropertyAttribute
+{
+    public EnumFlagsAttribute() { }
+}
