@@ -29,12 +29,7 @@ public class InventoryManager
 
 	public int AddItem(GameObject NewItem)
     {
-        if (NewItem && Expandable)
-        {
-            Resize(Length + 1);
-        }
-
-        if (NewItem && Length > 0 && !Full)
+        if (NewItem && !Full)
 		{
 			Item ItemComponent = null;	
 			for (int index = 0; index < Inventory.Length; index++) 
@@ -56,11 +51,16 @@ public class InventoryManager
                     }
 				}
 			}
-            Debug.Log("Inventory is full");
-            return -1;
+            
 		}
 
-        
+        if (NewItem && Expandable)
+        {
+            int OldLength = Length;
+            Resize(Length + 1);
+            Inventory[OldLength] = NewItem;
+            return OldLength;
+        }
 
         Debug.Log("Inventory is null");
         return -1;
@@ -232,4 +232,70 @@ public class InventoryManager
 		return false;
 	}
 
+    public bool Contains(int Id)
+    {
+        Item Temp;
+        for (int i = 0; i < Inventory.Length; i++)
+        {
+            Temp = Inventory[i].GetComponent<Item>();
+            if (Temp && Temp.Id == Id)
+                return true;
+        }
+
+        return false;
+    }
+
+    public GameObject Find(int Id)
+    {
+        Item Temp;
+        for (int i = 0; i < Inventory.Length; i++)
+        {
+            Temp = Inventory[i].GetComponent<Item>();
+            if (Temp && Temp.Id == Id)
+                return Inventory[i];
+        }
+
+        return null;
+    }
+
+    public GameObject Find(string Name)
+    {
+        Item Temp;
+        for (int i = 0; i < Inventory.Length; i++)
+        {
+            Temp = Inventory[i].GetComponent<Item>();
+            if (Temp && Temp.Name == Name)
+                return Inventory[i];
+        }
+
+        return null;
+    }
+
+    public int FindIndex(int Id)
+    {
+        Item Temp;
+        for (int i = 0; i < Inventory.Length; i++)
+        {
+            Temp = Inventory[i].GetComponent<Item>();
+            if (Temp && Temp.Id == Id) return i;
+        }
+
+        return -1;
+    }
+
+    public int FindIndex(string Name)
+    {
+        Item Temp;
+        for (int i = 0; i < Inventory.Length; i++)
+        {
+            Temp = Inventory[i].GetComponent<Item>();
+            if (Temp && Temp.Name == Name) return i;
+        }
+
+        return -1;
+    }
+
+    public bool IsValidIndex(int Index) {
+        return (Index >= 0 && Index < Inventory.Length);
+    }
 }

@@ -36,6 +36,7 @@ public class ItemManager : MonoBehaviour
     private GameObject Object;
     RaycastHit Hit;
     bool HitPending;
+    static int GeneratedIndex = int.MinValue; 
 
     private void Awake()
     {
@@ -60,7 +61,6 @@ public class ItemManager : MonoBehaviour
 
     private void Update()
     {
-       
         if (Preview && Controller)
         {
             Vector3 Mouse = new Vector3(Input.mousePosition.x,Input.mousePosition.y, Camera.main.nearClipPlane);
@@ -84,7 +84,7 @@ public class ItemManager : MonoBehaviour
                     if (Input.GetButtonDown(LeftClickAction))
                     {
                         Object = Hit.collider.gameObject;
-                        Character.Inventory.AddItem(Object);
+                        Character.PickUp(Object);
                     }
                 }
                 else if(HitPending)
@@ -178,5 +178,10 @@ public class ItemManager : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(Hit.point, 0.2f);
+    }
+
+    public int GenerateId()
+    {
+        return Mathf.Clamp(GeneratedIndex++, int.MinValue + 1, int.MinValue);
     }
 }

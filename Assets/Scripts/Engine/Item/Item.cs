@@ -18,18 +18,25 @@ public class Item : MonoBehaviour
     [Header("Item Properties:")]
     public string Name;
     public string Description;
+    public bool AutoGenerateId = true;
     public int Id;
     public int Stack;
     public int MaxStack;
     public EItemType Type = EItemType.None;
+    public UI_EquipSlot.SlotType SlotType = UI_EquipSlot.SlotType.None;
     public Stat Stats;
+    public Stat RequieredStats;
     public Color Rarity = Color.white;
+    public Sprite Icon;
+    public Vector2Int Size;
+
+    
 
     private RectTransform ButtonTransform;
     private int State = -2;
     private string Seed;
 
-    public static bool operator ==(Item a,Item b)
+    public static bool operator ==(Item a, Item b)
     {
         return (
         a.Name == b.Name
@@ -70,7 +77,7 @@ public class Item : MonoBehaviour
 
         && a.Stats.ColdownReduction == b.Stats.ColdownReduction
         && a.Stats.Speed == b.Stats.Speed
-        && a.Stats.VisionRadius == b.Stats.VisionRadius );
+        && a.Stats.VisionRadius == b.Stats.VisionRadius);
     }
 
     public static bool operator !=(Item a, Item b)
@@ -93,18 +100,14 @@ public class Item : MonoBehaviour
         return base.GetHashCode();
     }
 
-    protected virtual void Awake()
+    protected virtual void Start()
     {
         State = -1;
+        Id = (AutoGenerateId) ? ItemManager.Instance.GenerateId() : Id;
     }
 
     public virtual void OnPickUp()
     {
-        Character PC = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Character>();
-        if (PC) {
-            PC.Inventory.AddItem(gameObject);
-        }
-
         GetComponent<MeshRenderer>().enabled = false;
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<Collider>().enabled = false;
@@ -113,12 +116,6 @@ public class Item : MonoBehaviour
 
     public virtual void OnDrop()
     {
-        Character PC = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Character>();
-        if (PC)
-        {
-            PC.Inventory.RemoveItem(gameObject);
-        }
-
         GetComponent<MeshRenderer>().enabled = true;
         GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<Collider>().enabled = true;
@@ -126,7 +123,7 @@ public class Item : MonoBehaviour
     }
 
     public virtual void OnEquip()
-    { 
+    {
         //WIP
         State = 1;
     }
@@ -163,5 +160,10 @@ public class Item : MonoBehaviour
         Seed += "CD" + Stats.ColdownReduction;
         Seed += "Speed" + Stats.Speed;
         Seed += "VRadius" + Stats.VisionRadius;
+    }
+
+    static public bool IsValid(int Id)
+    {
+        return Id > int.MinValue && Id <= int.MaxValue;
     }
 }

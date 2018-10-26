@@ -37,13 +37,14 @@ public class UI_Manager : MonoBehaviour
         ControllerComponent = Controller.GetComponent<PlayerController>();
         if (!ControllerComponent) Debug.LogError("UI_Manager: Controller component is null");
 
+        WindowOpen = true;
 		RectTransform[] WindowGameObjects = GameObject.FindObjectsOfType<RectTransform> ();
 		for (int i = 0; i < WindowGameObjects.Length; i++) 
 		{
             if (WindowGameObjects[i].gameObject.layer == LayerMask.NameToLayer("UI"))
             {
                 Windows.Add(WindowGameObjects[i].gameObject);
-                WindowOpen = WindowGameObjects[i].gameObject.activeInHierarchy;
+                WindowOpen &= WindowGameObjects[i].gameObject.activeInHierarchy;
             }
 		}
 		WindowGameObjects = new RectTransform[0];
@@ -52,7 +53,10 @@ public class UI_Manager : MonoBehaviour
 
     private void Update()
     {
-        if (WindowOpen && ControllerComponent) ControllerComponent.Mode = InputMode.InterfaceOnly;
+        if (WindowOpen && ControllerComponent)
+            ControllerComponent.Mode = InputMode.InterfaceOnly;
+
+
     }
 
     public bool InputKeyModifier(KeyModifier Key)
@@ -97,8 +101,21 @@ public class UI_Manager : MonoBehaviour
 		return new Vector2Int (Index%Width,Index/Width);
 	}
 
-    public void SetInputMode(InputMode Mode) {
-        if (ControllerComponent) ControllerComponent.Mode = Mode;
-        WindowOpen = (Mode == InputMode.InterfaceOnly) ? true : false;
+    public void SetInputMode(InputMode Mode)
+    {
+        if (ControllerComponent)
+            ControllerComponent.Mode = Mode;
+
+        UI_Window Current = null;
+        for (int i = 0; i < Windows.Count; i++)
+        {
+            Current = Windows[i].GetComponent <UI_Window>();
+            if (Current && Current.Activated) {
+                WindowOpen = true;
+                return;
+            }
+        }
+
+        WindowOpen = false;
     }
 }

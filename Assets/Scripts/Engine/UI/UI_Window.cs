@@ -106,7 +106,6 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 
 		if (Draggable && UI_Manager.Instance.InputKeyModifier(DragModifier))
         {
-			
             if(DragFilter != null && DragFilter.Length > 0)
             {
                 CanDrag = false;
@@ -148,19 +147,19 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 			}
 		}
 		IsActivated = false;
-		this.gameObject.SetActive (true);
+        gameObject.SetActive(true);
         UI_Manager.Instance.SetInputMode(InputMode.GameOnly);
 	}
 
 	public void OpenWindow()
 	{
-		if (TransformComponents != null) {
+        if (TransformComponents != null) {
 			for (int i = 0; i < TransformComponents.Length; i++) {
 				TransformComponents [i].gameObject.SetActive (ActiveChilds[i]);
 			}
 		}
 		IsActivated = true;
-		this.gameObject.SetActive (true);
+        gameObject.SetActive(true);
         UI_Manager.Instance.SetInputMode(InputMode.InterfaceOnly);
     }
 

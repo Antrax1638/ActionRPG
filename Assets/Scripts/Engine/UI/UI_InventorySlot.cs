@@ -7,24 +7,33 @@ using UnityEngine.EventSystems;
 
 public class UI_InventorySlot : UI_Slot
 {
-	public enum RemoveType
-	{
-		RemoveOnDrag,
-		RemoveOnDrop
-	}
+    public enum ERemoveType
+    {
+        RemoveOnDrag,
+        RemoveOnDrop
+    }
+
+    public enum ERemoveMode
+    {
+        None,
+        DropOnVoid,
+        DeleteOnVoid,
+        RestoreOnVoid
+    }
 
     [Header("Inventory Slot Properties:")]
     public bool Inventory;
-	public UI_Item Item = new UI_Item();
-	public bool RemoveEvent = false;
-	public RemoveType Remove = RemoveType.RemoveOnDrop;
+    public UI_Item Item = new UI_Item();
+    public bool RemoveEvent = false;
+    public ERemoveType Remove = ERemoveType.RemoveOnDrop;
+    public ERemoveMode RemoveMode = ERemoveMode.DropOnVoid;
 
-	private UI_Inventory ParentInventory;
-	private UI_Item TempDrag = new UI_Item();
+    private UI_Inventory ParentInventory;
+    private UI_Item TempDrag = new UI_Item();
 
-	protected override void Awake()
-	{
-		base.Awake ();
+    protected override void Awake()
+    {
+        base.Awake();
         if (Inventory)
         {
             ParentInventory = GetComponentInParent<UI_Inventory>();
@@ -34,24 +43,24 @@ public class UI_InventorySlot : UI_Slot
     }
 
     protected override void Start()
-	{
-		base.Start ();
-        
-        SetVisibility(Visible);
-	}
+    {
+        base.Start();
 
-	protected override void Update()
-	{
-		base.Update ();
+        SetVisibility(Visible);
+    }
+
+    protected override void Update()
+    {
+        base.Update();
 
         if (GetImage("Icon").gameObject.activeInHierarchy && Item == UI_Item.invalid)
             Debug.Log("Active and Null");
-	}
+    }
 
-	//Operations:
-	public override void OnBeginDrag(PointerEventData Data)
-	{
-		base.OnBeginDrag (Data);
+    //Operations:
+    public override void OnBeginDrag(PointerEventData Data)
+    {
+        base.OnBeginDrag(Data);
 
         //Posible bug
         if (DragComponent)
@@ -60,92 +69,123 @@ public class UI_InventorySlot : UI_Slot
             if (DragObject && Item != UI_Item.invalid)
             {
                 DragObject.DragSize = Item.Size;
-                DragObject.Source = ParentInventory.gameObject;
+                DragObject.Source = gameObject;
             }
         }
-        
-        if (Inventory && Remove == RemoveType.RemoveOnDrag && RemoveEvent)
+
+        if (Inventory && Remove == ERemoveType.RemoveOnDrag && RemoveEvent)
         {
             TempDrag = Item;
             ParentInventory.RemoveItem(Position);
         }
-		
-	}
 
-	public override void OnDrag(PointerEventData Data)
-	{
-		base.OnDrag (Data);
-	}
+    }
 
-	public override void OnEndDrag(PointerEventData Data)
-	{
-		base.OnEndDrag (Data);
-	}
+    public override void OnDrag(PointerEventData Data)
+    {
+        base.OnDrag(Data);
+    }
 
-	public override void OnPointerEnter(PointerEventData Data)
-	{
+    public override void OnEndDrag(PointerEventData Data)
+    {
+        base.OnEndDrag(Data);
+    }
+
+    public override void OnPointerEnter(PointerEventData Data)
+    {
         ToolTip = (Item != UI_Item.invalid && ToolTipPrefab);
         if (Inventory)
             UI_Inventory.HoveredSlot = this;
 
-        base.OnPointerEnter (Data);
+        base.OnPointerEnter(Data);
         ParentInventory.EnterHighLight();
     }
 
-	public override void OnPointerExit(PointerEventData Data)
-	{
+    public override void OnPointerExit(PointerEventData Data)
+    {
         if (Inventory)
             UI_Inventory.HoveredSlot = null;
 
-        base.OnPointerExit (Data);
+        base.OnPointerExit(Data);
         ParentInventory.ExitHighLight();
-	}
+    }
 
-	public override void OnDrop (GameObject Slot)
-	{
-		if (Visible == Visibility.Hidden)
-			return;
+    public override void OnDrop(GameObject Slot)
+    {
+        if (Visible == Visibility.Hidden)
+            return;
 
-		UI_InventorySlot SlotComponent = Slot.GetComponent<UI_InventorySlot> ();
-		if (Inventory && SlotComponent) 
-		{
-            UI_Item Item = (Remove == RemoveType.RemoveOnDrag) ? TempDrag : this.Item;
-            Vector2Int NewPosition = SlotComponent.ParentInventory.AddItem (Item, SlotComponent.Position);
-            
-            if (NewPosition != UI_Inventory.InvalidIndex)
-            {
-                if (Remove == RemoveType.RemoveOnDrop && RemoveEvent)
-                {
-                    ParentInventory.RemoveItem(Position);
-                }
-            }
-            else
-            {
-                if (Remove == RemoveType.RemoveOnDrag)
-                    ParentInventory.AddItem(Item, Position);
-            }
-		}
-
-        UI_EquipSlot EquipComponent = Slot.GetComponent<UI_EquipSlot>();
-        if (EquipComponent && EquipComponent.Inventory)
+        if (Slot)
         {
-            
-            UI_Item Item = (Remove == RemoveType.RemoveOnDrag) ? TempDrag : this.Item;
-            Vector2Int NewId = EquipComponent.Inventory.AddItem(Item, Slot);
-            if(NewId != UI_Inventory.InvalidIndex)
+            UI_InventorySlot SlotComponent = Slot.GetComponent<UI_InventorySlot>();
+            if (Inventory && SlotComponent)
             {
-                if (Remove == RemoveType.RemoveOnDrop && RemoveEvent)
+                UI_Item Item = (Remove == ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
+                Vector2Int NewPosition = SlotComponent.ParentInventory.AddItem(Item, SlotComponent.Position);
+
+                if (NewPosition != UI_Inventory.InvalidIndex)
                 {
-                    ParentInventory.RemoveItem(Position);
+                    if (Remove == ERemoveType.RemoveOnDrop && RemoveEvent)
+                    {
+                        ParentInventory.RemoveItem(Position);
+                    }
+                }
+                else
+                {
+                    if (Remove == ERemoveType.RemoveOnDrag)
+                    {
+                        ParentInventory.AddItem(Item, Position);
+                    }
                 }
             }
-            else
+
+            UI_EquipSlot EquipComponent = Slot.GetComponent<UI_EquipSlot>();
+            if (EquipComponent && EquipComponent.Inventory)
             {
-                if (Remove == RemoveType.RemoveOnDrag)
-                    ParentInventory.AddItem(Item, Position);
+                UI_Item Item = (Remove == ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
+                if (ItemManager.Instance.Character.Equip(Item.Id, EquipComponent))
+                {
+                    int NewId = EquipComponent.Inventory.AddItem(Item, Slot);
+                    if (NewId >= 0)
+                    {
+                        if (Remove == ERemoveType.RemoveOnDrop && RemoveEvent)
+                        {
+                            ParentInventory.RemoveItem(Position);
+                        }
+                    }
+                    else
+                    {
+                        if (Remove == ERemoveType.RemoveOnDrag)
+                            ParentInventory.AddItem(Item, Position);
+                    }
+                }
+                else
+                {
+                    switch (Remove) {
+                        case ERemoveType.RemoveOnDrag: ParentInventory.AddItem(Item, Position); break;
+                        case ERemoveType.RemoveOnDrop: break;
+                    }
+                }
+                Debug.Log("Cast To Equip slot");
+            }
+        }
+        else
+        {
+            Debug.Log("Void Drop WIP");
+
+            Item = (Remove == ERemoveType.RemoveOnDrag) ? TempDrag : Item;
+            ItemManager.Instance.Character.Drop(Item.Id);
+            if (Remove == ERemoveType.RemoveOnDrag && RemoveMode == ERemoveMode.RestoreOnVoid)
+            {
+                ParentInventory.AddItem(Item, Position);
             }
 
-            Debug.Log("Cast To Equip slot");
+            if(Remove == ERemoveType.RemoveOnDrop && RemoveMode != ERemoveMode.RestoreOnVoid)
+            {
+                ParentInventory.RemoveItem(Position);
+            }
+
+            Item = UI_Item.invalid;
         }
 	}
 }

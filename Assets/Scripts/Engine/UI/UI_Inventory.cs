@@ -31,17 +31,15 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [HideInInspector] public int Length { get { return Size.x * Size.y; } }
     [HideInInspector] public static UI_InventorySlot HoveredSlot;
     [HideInInspector] public int State { get { return LastState; } }
-
+    
     GameObject GridPanel, SlotTemp;
     private RectTransform TransformComponent;
     private RectTransform GridPanelTransformComponent;
     private GridLayoutGroup GridPanelComponent;
-    //private UnSymmetricalGridLayoutGroup UnSymGridPanelComponent;
     private bool MouseOver = false;
 
     protected GameObject[,] GridCells;
     protected int LastState = 1;
-    Queue<Vector2Int> PendingSlots = new Queue<Vector2Int>();
 
     int Width, Height;
     UI_Item Temp = UI_Item.invalid;
@@ -63,22 +61,7 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             Width = (int)GridPanelComponent.cellSize.x * Size.x;
             Height = (int)GridPanelComponent.cellSize.y * Size.y;
         }
-
-        /*UnSymGridPanelComponent = GetComponentInChildren<UnSymmetricalGridLayoutGroup>();
-        if (UnSymGridPanelComponent)
-        { 
-            RectTransform SlotTransform = Slot.GetComponent<RectTransform>();
-            UnSymGridPanelComponent.CellSize = (SlotSize) ? SlotTransform.sizeDelta : UnSymGridPanelComponent.CellSize;
-
-            GridCells = new GameObject[Size.x, Size.y];
-            Width = (int)UnSymGridPanelComponent.CellSize.x * Size.x;
-            Height = (int)UnSymGridPanelComponent.CellSize.y * Size.y;
-
-            UnSymGridPanelComponent.MaxFillWidth = Size.x;
-            UnSymGridPanelComponent.MaxFillHeight = Size.y;
-            UnSymGridPanelComponent.LockCellSize = false;
-        }*/
-
+        
         if (!GridPanelComponent)
             Debug.LogError("UI_Inventory: Grid panel component is null.");
         else
@@ -192,15 +175,15 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
             RangeValid &= (HoveredSlot.Position.x >= 0);
             RangeValid &= (HoveredSlot.Position.y >= 0);
-            RangeValid &= (HoveredSlot.Position.x + DragObject.DragSize.x < GridCells.GetLength(0));
-            RangeValid &= (HoveredSlot.Position.y + DragObject.DragSize.y < GridCells.GetLength(1));
+            RangeValid &= (HoveredSlot.Position.x + DragObject.DragSize.x <= GridCells.GetLength(0));
+            RangeValid &= (HoveredSlot.Position.y + DragObject.DragSize.y <= GridCells.GetLength(1));
 
             if (RangeValid)
             {
                 UI_InventorySlot Current = null;
-                for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x + 1; x++)
+                for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x; x++)
                 {
-                    for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y + 1; y++)
+                    for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y; y++)
                     {
                         Current = GridCells[x, y].GetComponent<UI_InventorySlot>();
                         if (Current && !ValidateItemFormat(Current.Item))
@@ -218,42 +201,6 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             {
                 HighLightObject.GetComponent<Image>().color = HighlightInvalid;
             }
-
-            /*bool SlotValid = true;
-            bool RangeValid = true;
-
-            UI_InventorySlot Slot;
-            UI_Drag DragObject = UI_Slot.DragObject.GetComponent<UI_Drag>();
-            for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x; x++)
-            {
-                for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y; y++)
-                {
-                    RangeValid &= (HoveredSlot.Position.x >= 0);
-                    RangeValid &= (HoveredSlot.Position.y >= 0);
-                    RangeValid &= (HoveredSlot.Position.x + DragObject.DragSize.x < GridCells.GetLength(0));
-                    RangeValid &= (HoveredSlot.Position.y + DragObject.DragSize.y < GridCells.GetLength(1));
-
-                    if (RangeValid)
-                    {
-                        Slot = GridCells[x, y].GetComponent<UI_InventorySlot>();
-                        SlotValid &= (Slot && Slot.Item == UI_Item.invalid);
-                        Slot.GetImage("Frame").color = (SlotValid) ? HighlightValid : HighlightInvalid;
-                        Slot.GetImage("Background").color = (SlotValid) ? HighlightValid : HighlightInvalid;
-                    }
-                    else
-                    {
-                        int NewX = Mathf.Clamp(x, 0, GridCells.GetLength(0) - 1);
-                        int NewY = Mathf.Clamp(y, 0, GridCells.GetLength(1) - 1);
-
-                        Slot = GridCells[NewX, NewY].GetComponent<UI_InventorySlot>();
-                        Slot.GetImage("Frame").color = HighlightValid;
-                        Slot.GetImage("Background").color = HighlightValid;
-
-                    }
-
-                    PendingSlots.Enqueue(Slot.Position);
-                }
-            }*/
         }
     }
 
@@ -265,13 +212,6 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             {
                 HighLightObject.SetActive(false);
                 HighLightObject.transform.position = Vector3.zero;
-                /*for (int Index = 0; Index < PendingSlots.Count; Index++)
-                {
-                    Vector2Int CurrentPosition = PendingSlots.Dequeue();
-                    UI_InventorySlot HSlot = GridCells[CurrentPosition.x, CurrentPosition.y].GetComponent<UI_InventorySlot>();
-                    HSlot.GetImage("Frame").color = Color.white;
-                    HSlot.GetImage("Background").color = Color.white;
-                }*/
             }
         }
     }
@@ -330,7 +270,7 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 		int ItemHeight = Position.y + NewItem.Size.y;
 
         ValidIndex = (Position.x >= 0 && Position.y >= 0) && (ItemWidth - 1 < Size.x) && (ItemHeight - 1 < Size.y);
-        if (!ValidIndex) { DebugLog("Invalid Initial Position"); return Position; }
+        if (!ValidIndex) { DebugLog("Invalid Initial Position"); return Index; }
 
 		List<int> HierarchyIndex = new List<int> ();
 		List<GameObject> DeactivatedSlots = new List<GameObject> ();
@@ -427,21 +367,22 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 		return Index;
 	}
 
-    public Vector2Int AddItem(UI_Item NewItem,GameObject Slot)
+    public int AddItem(UI_Item NewItem,GameObject Slot)
     {
-        if (!ValidateItemFormat(NewItem))
-            return InvalidIndex;
+        int Index = -1;
 
-        Vector2Int Index = InvalidIndex;
+        if (!ValidateItemFormat(NewItem))
+            return Index;
+
         UI_EquipSlot SlotComponent = Slot.GetComponent<UI_EquipSlot>();
         if(SlotComponent)
         {
             DebugLog("Item added to Equipament Slot: [" + SlotComponent.Id + "]");
             SlotComponent.SetVisibility(Visibility.Visible);
             SlotComponent.SetIcon(NewItem.Icon);
-            SlotComponent.SetScale(NewItem.Size);
+            //SlotComponent.SetScale(NewItem.Size);
             SlotComponent.Item = NewItem;
-            Index = new Vector2Int(SlotComponent.Id, SlotComponent.Id);
+            Index = SlotComponent.Id;
         }
 
         return Index;
@@ -484,8 +425,10 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 			}
 		}
 
-        if(Success)
+        if (Success) {
             DebugLog("Item Removed Successfully");
+            Slot.RestoreOpacity();
+        }
 
 		return Success;
 	}
@@ -502,7 +445,12 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             SlotComponent.SetIcon(null);
             SlotComponent.Item = new UI_Item();
             Success = true;
+        }
+
+        if (Success)
+        {
             DebugLog("Item Removed Successfully: " + SlotComponent.Id);
+            SlotComponent.RestoreOpacity();
         }
 
         return Success;
@@ -539,7 +487,25 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 		return Valid;*/
 	}
 
-	public void SwitchItem(Vector2Int OldPosition,Vector2Int NewPosition)
+    public UI_Item Find(int Id)
+    {
+        UI_InventorySlot Slot;
+        for (int y = 0; y < GridCells.GetLength(1); y++)
+        {
+            for (int x = 0; x < GridCells.GetLength(0); x++)
+            {
+                Slot = GridCells[x, y].GetComponent<UI_InventorySlot>();
+                if(Slot && Slot.Item.Id == Id)
+                {
+                    return Slot.Item;
+                }
+            }
+        }
+
+        return UI_Item.invalid;
+    }
+
+    public void SwitchItem(Vector2Int OldPosition,Vector2Int NewPosition)
 	{
         UI_InventorySlot OldSlot, NewSlot;
         OldSlot = GridCells[OldPosition.x, OldPosition.y].GetComponent<UI_InventorySlot>();

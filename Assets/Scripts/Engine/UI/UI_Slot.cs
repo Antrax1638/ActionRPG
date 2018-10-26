@@ -57,12 +57,17 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	protected static GameObject HoverObject;
 	private bool DragKey;
 	private GameObject OverlayObject;
+    private float DefaultAlpha = 0.0f;
 
 	protected virtual void Awake () 
 	{
         CanvasGroupComponent = GetComponent<CanvasGroup>();
         if (!CanvasGroupComponent)
             Debug.LogError("UI_Slot: Canvas Group component is null");
+        else
+        {
+            DefaultAlpha = CanvasGroupComponent.alpha;
+        }
 
         ImageComponents = GetComponentsInChildren<Image> ();
 		if (ImageComponents.Length <= 0)
@@ -271,10 +276,19 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
             DragComponent = null;
 		}
 
-		if (HoverObject && HoverObject.layer == LayerMask.NameToLayer("UI"))
-		{
-			OnDrop (HoverObject);
-		}
+        if (HoverObject)
+        {
+            switch (HoverObject.layer)
+            {
+                case 5: OnDrop(HoverObject); break;
+                default: break;
+            }
+        }
+        else
+        {
+            OnDrop(null);
+        }
+		
 	}
 
 	public virtual void OnPointerEnter(PointerEventData Data)
@@ -297,6 +311,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 			return;
 
 		MouseOver = false;
+        HoverObject = null;
 		for (int i = 0; i < ImageComponents.Length; i++)
 		{
 			ImageComponents [i].color = DefaultColor [i];
@@ -327,5 +342,11 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
             case RaycastFilter.Inactive: Success = false;  break;
         }
         return Success;
+    }
+
+    public virtual void RestoreOpacity() {
+        if (CanvasGroupComponent) {
+            CanvasGroupComponent.alpha = DefaultAlpha;
+        }
     }
 }
