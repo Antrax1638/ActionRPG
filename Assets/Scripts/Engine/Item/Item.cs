@@ -30,8 +30,6 @@ public class Item : MonoBehaviour
     public Sprite Icon;
     public Vector2Int Size;
 
-    
-
     private RectTransform ButtonTransform;
     private int State = -2;
     private string Seed;
@@ -122,10 +120,22 @@ public class Item : MonoBehaviour
         State = -1;
     }
 
-    public virtual void OnEquip()
+    public virtual void OnEquip(Transform Attach)
     {
-        //WIP
+        transform.SetParent(Attach);
+        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<Collider>().enabled = true;
         State = 1;
+    }
+
+    public virtual void OnUnEquip()
+    {
+        transform.SetParent(null);
+        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<Collider>().enabled = false;
+        State = 0;
     }
 
     protected void GenerateSeed()

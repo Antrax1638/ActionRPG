@@ -96,17 +96,18 @@ MonoBehaviour:
   SlotTag: Slot
   Position: {x: 0, y: 0}
   RaycastMode: 0
-  Overlay: 0
-  HoverOverlay: {fileID: 0}
+  Overlay: 1
+  HoverOverlay: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   PressOverlay: {fileID: 0}
   OverlayPrefab: {fileID: 0}
   DragEnabled: 1
   DragPrefab: {fileID: 1487197358287810, guid: 049a8be096a2e014d80877852a57eb10, type: 2}
+  DragKey: 0
   DragKeyModifier: 0
-  ToolTip: 0
-  ToolTipPrefab: {fileID: 0}
+  ToolTip: 1
   ToolTipTime: 1
   ToolTipOffset: {x: 0, y: 0}
+  Events: 1
   LeftClick:
     m_PersistentCalls:
       m_Calls: []

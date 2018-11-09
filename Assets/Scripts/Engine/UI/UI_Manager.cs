@@ -14,6 +14,10 @@ public class UI_Manager : MonoBehaviour
 	public GameObject Controller;
     public bool WindowOpen;
 
+    [Header("Prefabs:")]
+    [Tooltip("Slots object tooltip preset")][SerializeField] private GameObject ToolTip = null;
+    [Tooltip("Slots object overlay preset")][SerializeField] private GameObject Overlay = null;
+
 	protected List<GameObject> Windows = new List<GameObject>();
 	private static UI_Manager ManagerInstance;
 	private GameObject DragOperation;
@@ -32,7 +36,7 @@ public class UI_Manager : MonoBehaviour
 		}
 	}
 
-	void Start()
+    void Start()
 	{
         ControllerComponent = Controller.GetComponent<PlayerController>();
         if (!ControllerComponent) Debug.LogError("UI_Manager: Controller component is null");
@@ -49,14 +53,15 @@ public class UI_Manager : MonoBehaviour
 		}
 		WindowGameObjects = new RectTransform[0];
 
-	}
+        UI_Slot.InitializeToolTip(ToolTip, GameObject.FindGameObjectWithTag("MainCanvas").transform);
+        UI_Slot.InitializeOverlay(Overlay, GameObject.FindGameObjectWithTag("MainCanvas").transform);
+    }
 
     private void Update()
     {
         if (WindowOpen && ControllerComponent)
             ControllerComponent.Mode = InputMode.InterfaceOnly;
-
-
+        
     }
 
     public bool InputKeyModifier(KeyModifier Key)

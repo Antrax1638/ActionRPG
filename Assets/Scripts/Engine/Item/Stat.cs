@@ -134,4 +134,45 @@ public class Stat
 
         return c;
     }
+
+    public static Stat operator*(Stat a, float b)
+    {
+        Stat c = new Stat();
+        c.Strength = System.Convert.ToInt32(a.Strength * b);
+        c.Agility = System.Convert.ToInt32(a.Agility * b);
+        c.Dexterity = System.Convert.ToInt32(a.Dexterity * b);
+        c.Inteligence = System.Convert.ToInt32(a.Inteligence * b);
+        c.Endurance = System.Convert.ToInt32(a.Endurance * b);
+        c.Luck = System.Convert.ToInt32(a.Luck * b);
+
+        c.Health = a.Health * b;
+        c.MaxHealth = a.MaxHealth * b;
+        c.HealthRegeneration = a.HealthRegeneration * b;
+        c.Energy = a.Energy * b;
+        c.MaxEnergy = a.MaxEnergy * b;
+        c.EnergyRegeneration = a.EnergyRegeneration * b;
+        c.Shield = a.Shield * b;
+
+        c.Damage = a.Damage * b;
+        c.DamageMultiplier = a.DamageMultiplier * b;
+        c.AttackSpeed = a.AttackSpeed * b;
+        c.Range = System.Convert.ToInt32(a.Range * b);
+        c.CriticalChance = a.CriticalChance * b;
+        c.CriticalMultiplier = a.CriticalMultiplier * b;
+        c.CriticalOverflow = a.CriticalOverflow * b;
+
+        c.Armor = System.Convert.ToInt32(a.Armor * b);
+        c.ElementalArmor = System.Convert.ToInt32(a.ElementalArmor * b);
+        c.DamageReduction = a.DamageReduction * b;
+        c.Block = a.Block * b;
+        c.BlockChance = a.BlockChance * b;
+        c.Evasion = a.Evasion * b;
+        c.EvasionChance = a.EvasionChance * b;
+
+        c.ColdownReduction = a.ColdownReduction * b;
+        c.Speed = a.Speed * b;
+        c.VisionRadius = a.VisionRadius * b;
+
+        return c;
+    }
 }

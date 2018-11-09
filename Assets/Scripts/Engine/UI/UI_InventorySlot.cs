@@ -30,6 +30,7 @@ public class UI_InventorySlot : UI_Slot
 
     private UI_Inventory ParentInventory;
     private UI_Item TempDrag = new UI_Item();
+    private GameObject IconReference;
 
     protected override void Awake()
     {
@@ -45,6 +46,7 @@ public class UI_InventorySlot : UI_Slot
     protected override void Start()
     {
         base.Start();
+        IconReference = GetImage("Icon").gameObject;
 
         SetVisibility(Visible);
     }
@@ -53,14 +55,18 @@ public class UI_InventorySlot : UI_Slot
     {
         base.Update();
 
-        if (GetImage("Icon").gameObject.activeInHierarchy && Item == UI_Item.invalid)
+        if (IconReference.activeInHierarchy && Item == UI_Item.invalid)
+        {
+            IconReference.SetActive(false);
             Debug.Log("Active and Null");
+        }
     }
 
     //Operations:
     public override void OnBeginDrag(PointerEventData Data)
     {
         base.OnBeginDrag(Data);
+        if (Data.button != DragKey) return;
 
         //Posible bug
         if (DragComponent)
@@ -84,21 +90,38 @@ public class UI_InventorySlot : UI_Slot
     public override void OnDrag(PointerEventData Data)
     {
         base.OnDrag(Data);
+        if (Data.button != DragKey) return;
     }
 
     public override void OnEndDrag(PointerEventData Data)
     {
         base.OnEndDrag(Data);
+        if (Data.button != DragKey) return;
     }
 
     public override void OnPointerEnter(PointerEventData Data)
     {
-        ToolTip = (Item != UI_Item.invalid && ToolTipPrefab);
-        if (Inventory)
-            UI_Inventory.HoveredSlot = this;
-
+        ToolTip = (Item != UI_Item.invalid);
         base.OnPointerEnter(Data);
+        UI_Inventory.HoveredSlot = this;
         ParentInventory.EnterHighLight();
+    }
+
+    protected override void ToolTipEnter()
+    {
+        base.ToolTipEnter();
+        if (ToolTip && ToolTipComponent)
+        {
+            UI_ToolTip ToolTipObj = ToolTipComponent.GetComponent<UI_ToolTip>();
+            Item ToolTipItem = ItemManager.Instance.Character.Inventory.Find(Item.Id).GetComponent<Item>();
+
+            ToolTipObj.SetProperties(ToolTipItem.Name, Item.Icon, ToolTipItem.Stats);
+        }
+    }
+
+    protected override void ToolTipExit()
+    {
+        base.ToolTipExit();
     }
 
     public override void OnPointerExit(PointerEventData Data)

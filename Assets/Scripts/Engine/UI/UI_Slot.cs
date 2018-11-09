@@ -27,22 +27,23 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	public bool Overlay = false;
 	public Sprite HoverOverlay = null;
 	public Sprite PressOverlay = null;
-	public GameObject OverlayPrefab = null;
 
 	[Header("Drag&Drop Properties:")]
 	public bool DragEnabled;
 	public GameObject DragPrefab;
-	public KeyModifier DragKeyModifier = KeyModifier.None;
+    public PointerEventData.InputButton DragKey = PointerEventData.InputButton.Left;
+    public KeyModifier DragKeyModifier = KeyModifier.None;
 
 	[Header("ToolTip Properties:")]
 	public bool ToolTip;
-	public GameObject ToolTipPrefab;
 	public float ToolTipTime = 1.0f;
 	public Vector2 ToolTipOffset = Vector2.zero;
 
-	//Events: 
-	[System.Serializable] public class OnLeftClickEvent : UnityEvent<UI_Slot> { }
-	[System.Serializable] public class OnRightClickEvent : UnityEvent<UI_Slot> { }
+    //Events: 
+    [Header("Events:")]
+    public bool Events = true;
+	[System.Serializable] public class OnLeftClickEvent : UnityEvent<int> { }
+	[System.Serializable] public class OnRightClickEvent : UnityEvent<int> { }
 
 	[SerializeField] public OnLeftClickEvent LeftClick = new OnLeftClickEvent ();
 	[SerializeField] public OnLeftClickEvent RightClick = new OnLeftClickEvent ();
@@ -51,12 +52,12 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	private Color[] DefaultColor;
 	private RectTransform TransformComponent;
 
-	protected static GameObject DragComponent,ToolTipComponent;
+	[HideInInspector] public static GameObject DragComponent,ToolTipComponent,OverlayComponent;
+    [HideInInspector] public static int LastActivedId;
 	private List<RaycastResult> RayCastResults = new List<RaycastResult>();
 	private GameObject[] HoverObjects;
 	protected static GameObject HoverObject;
-	private bool DragKey;
-	private GameObject OverlayObject;
+	private bool DragKeyMod;
     private float DefaultAlpha = 0.0f;
 
 	protected virtual void Awake () 
@@ -97,7 +98,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
        
 		DragComponent = null;
 		ToolTipComponent = null;
-
+        OverlayComponent = null;
         
     }
 		
@@ -108,59 +109,94 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 
 	protected virtual void Update () 
 	{
-        if (this == null)
-            return;
-
         if (MouseOver) 
 		{
 			OnMouseOver ();
 
-			if (Input.GetMouseButtonDown (0))
-				LeftClick.Invoke (this);
+			if (Input.GetMouseButtonDown (0) && Events)
+				LeftClick.Invoke (GetInstanceID());
 
-            if (Input.GetMouseButtonDown (1))
-				RightClick.Invoke (this);
-		}
+            if (Input.GetMouseButtonDown(1) && Events)
+                RightClick.Invoke(GetInstanceID());
+
+            if ((Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && Overlay && OverlayComponent && PressOverlay) {
+                OverlayComponent.GetComponent<Image>().sprite = PressOverlay;
+            }
+
+            if ((Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1)) && Overlay && OverlayComponent && HoverOverlay)
+            {
+                OverlayComponent.GetComponent<Image>().sprite = HoverOverlay;
+            }
+        }
 
         if (UI_Manager.Instance)
-            DragKey = UI_Manager.Instance.InputKeyModifier(DragKeyModifier);
+            DragKeyMod = UI_Manager.Instance.InputKeyModifier(DragKeyModifier);
         else
             Debug.LogWarning("UI_Slot: UI Manager component is null");
 	}
 
-	protected void InstantiateOverlay()
+    public static void InitializeOverlay(GameObject Prefab, Transform Root)
+    {
+        if (Prefab && Root)
+        {
+            OverlayComponent = Instantiate(Prefab, Root);
+            OverlayComponent.name = "Overlay";
+            OverlayComponent.SetActive(false);
+            OverlayComponent.GetComponent<Image>().raycastTarget = false;
+        }
+    }
+
+	protected void OverlayEnter()
 	{
-		if (!OverlayObject && Overlay) 
+		if (Overlay && OverlayComponent) 
 		{
-			OverlayObject = Instantiate (OverlayPrefab,transform);
-			OverlayObject.name = "Overlay";
-			Image OverlayImage = OverlayObject.GetComponent<Image> ();
-			RectTransform OverlayTransform = OverlayObject.GetComponent<RectTransform> ();
-			if(AdjustSize)
-				OverlayTransform.sizeDelta = TransformComponent.sizeDelta;
-			OverlayImage.sprite = HoverOverlay;
+            OverlayComponent.SetActive(true);
+            Image OImage = OverlayComponent.GetComponent<Image> ();
+            RectTransform OTransform = OverlayComponent.GetComponent<RectTransform>();
+
+            OTransform.SetParent(transform);
+            OTransform.anchoredPosition = Vector2Int.zero;
+            OTransform.localScale = Vector3.one;
+            OTransform.sizeDelta = (AdjustSize) ? TransformComponent.sizeDelta : OTransform.sizeDelta;
+			OImage.sprite = HoverOverlay;
 		}
 	}
 
-	protected void DestroyOverlay()
+	protected void OverlayExit()
 	{
-		Destroy (OverlayObject);
+		if(Overlay && OverlayComponent)
+        {
+            OverlayComponent.SetActive(false);
+        }
 	}
 
-	protected void ToolTipEnter()
+    public static void InitializeToolTip(GameObject Prefab, Transform Root)
+    {
+        if (!ToolTipComponent)
+        {
+            ToolTipComponent = Instantiate(Prefab, Root);
+            ToolTipComponent.name = "ToolTip";
+            ToolTipComponent.SetActive(false);
+        }
+    }
+
+	protected virtual void ToolTipEnter()
 	{
-		if (ToolTip && MouseOver) 
-		{
-			ToolTipComponent = Instantiate (ToolTipPrefab, TransformComponent.root);
-			ToolTipComponent.name = "ToolTip";
-			Vector2 Position = (Vector2)Input.mousePosition + ToolTipOffset;
-			ToolTipComponent.GetComponent<RectTransform> ().anchoredPosition = Position;
-		}
+        if (ToolTip && MouseOver && ToolTipComponent)
+        {
+            ToolTipComponent.SetActive(true);
+            Vector2 Position = (Vector2)Input.mousePosition + ToolTipOffset;
+            ToolTipComponent.GetComponent<RectTransform>().anchoredPosition = Position;
+            
+        }
 	}
 
-	protected void ToolTipExit()
+	protected virtual void ToolTipExit()
 	{
-		Destroy (ToolTipComponent);
+        if (ToolTipComponent)
+        {
+            ToolTipComponent.SetActive(false);
+        }
 	}
 
 	protected void UpdateDrag(PointerEventData Data)
@@ -233,13 +269,13 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 
     public virtual void OnBeginDrag(PointerEventData Data)
 	{
-		if (Visible == Visibility.Hidden)
+		if (Visible == Visibility.Hidden || Data.button != DragKey)
 			return;
 
 		if(GetIcon () == null)
 			return;
 
-		if (DragPrefab && DragEnabled && DragKey)
+		if (DragPrefab && DragEnabled && DragKeyMod)
 		{
 			DragComponent = Instantiate (DragPrefab, TransformComponent.root);
 			UI_Drag Temp = DragComponent.GetComponent<UI_Drag> ();
@@ -254,8 +290,9 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	{
 		if (Visible == Visibility.Hidden)
 			return;
+        if (Data.button != DragKey) return;
 
-		if (DragComponent && DragEnabled) 
+        if (DragComponent && DragEnabled) 
 		{
 			UI_Drag Temp = DragComponent.GetComponent<UI_Drag> ();
 			Temp.OnDrag (Input.mousePosition);
@@ -267,8 +304,9 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	{
 		if (Visible == Visibility.Hidden)
 			return;
+        if (Data.button != DragKey) return;
 
-		if (DragComponent && DragEnabled) 
+        if (DragComponent && DragEnabled) 
 		{
 			UI_Drag Temp = DragComponent.GetComponent<UI_Drag> ();
 			GetImage("Icon").color = Temp.DropColor;
@@ -301,8 +339,9 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 		{
 			ImageComponents [i].color = OverColor;
 		}
-		InstantiateOverlay ();
+        OverlayEnter();
 		Invoke ("ToolTipEnter", ToolTipTime);
+        LastActivedId = gameObject.GetInstanceID();
 	}
 
 	public virtual void OnPointerExit(PointerEventData Data)
@@ -312,11 +351,8 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 
 		MouseOver = false;
         HoverObject = null;
-		for (int i = 0; i < ImageComponents.Length; i++)
-		{
-			ImageComponents [i].color = DefaultColor [i];
-		}
-		DestroyOverlay ();
+        RestoreColor();
+        OverlayExit();
 		if (IsInvoking ("ToolTipEnter"))
 			CancelInvoke ("ToolTipEnter");
 		else
@@ -347,6 +383,14 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
     public virtual void RestoreOpacity() {
         if (CanvasGroupComponent) {
             CanvasGroupComponent.alpha = DefaultAlpha;
+        }
+    }
+
+    public virtual void RestoreColor()
+    {
+        for (int i = 0; i < ImageComponents.Length; i++)
+        {
+            ImageComponents[i].color = DefaultColor[i];
         }
     }
 }

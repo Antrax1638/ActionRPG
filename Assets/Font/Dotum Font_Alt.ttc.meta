@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 282b5a643810bc54780dde5ecad969b7
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 24
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Gulim
+  fontNames:
+  - Gulim
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 9dd1232a89816734587ae24832842ebe, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

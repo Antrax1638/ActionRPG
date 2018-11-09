@@ -18,6 +18,11 @@ public class Character : MonoBehaviour
     [Header("Character")]
     public string Name;
     public int Level;
+    public float Experience;
+    public float MaxExperience;
+    public float ExperienceBase;
+    public int StatsPerLevel;
+    public AnimationCurve ExperienceCurve;
     public EEnergyType EnergyType;
     public Stat Stats;
 
@@ -28,13 +33,37 @@ public class Character : MonoBehaviour
     public EquipamentManager Equipament;
     public InventoryManager Inventory;
 
-    protected void Awake()
-    {
+    [Header("Sockets")]
+    [SerializeField] private Transform Head = null;
+    [SerializeField] private Transform LeftHand = null;
+    [SerializeField] private Transform RightHand = null;
 
+    private int StatRemaining;
+    private int StatUsed;
+
+    private void Start()
+    {
+        UI_Hud.main.CharacterReference.Name = Name;
+        UI_Hud.main.CharacterReference.SetProperties();
+        StatRemaining = StatsPerLevel;
+        StatUsed = 0;
     }
 
     private void Update()
     {
+        MaxExperience = ExperienceBase * ExperienceCurve.Evaluate(Level + 1);
+        Experience = Mathf.Clamp(Experience, 0.0f, MaxExperience);
+        if (Experience >= MaxExperience) {
+            OnLevelUp();
+        }
+
+        UI_Hud.main.CharacterReference.Health = Stats.Health;
+        UI_Hud.main.CharacterReference.MaxHealth = Stats.MaxHealth;
+        UI_Hud.main.CharacterReference.Energy = Stats.Energy;
+        UI_Hud.main.CharacterReference.MaxEnergy = Stats.MaxEnergy;
+        UI_Hud.main.CharacterReference.Experience = Experience;
+        UI_Hud.main.CharacterReference.MaxExperience = MaxExperience;
+        UI_Hud.main.CharacterReference.Level = Level;
 
     }
 
@@ -74,10 +103,31 @@ public class Character : MonoBehaviour
     public bool Equip(int Id, UI_EquipSlot Slot)
     {
         bool Success = false;
+
         Item Temp = Inventory.Find(Id).GetComponent<Item>();
         if (UI_Hud.main.CharacterReference.TryToEquipItem(Temp, Slot))
         {
+            UI_EquipSlot.SlotType NewType;
             Stats = Stats + Temp.Stats;
+            NewType = (Temp.SlotType != UI_EquipSlot.SlotType.All) ? Temp.SlotType : Slot.Type;
+            switch (NewType)
+            {
+                //WIP
+                case UI_EquipSlot.SlotType.Head: Temp.OnEquip(null); break;
+                case UI_EquipSlot.SlotType.Body: break;
+                case UI_EquipSlot.SlotType.Pants: break;
+                case UI_EquipSlot.SlotType.Arms: break;
+                case UI_EquipSlot.SlotType.Foot: break;
+                case UI_EquipSlot.SlotType.LeftWeapon: Temp.OnEquip(LeftHand); break;
+                case UI_EquipSlot.SlotType.RightWeapon: Temp.OnEquip(RightHand); break;
+                case UI_EquipSlot.SlotType.LeftRing: break;
+                case UI_EquipSlot.SlotType.RightRing: break;
+                case UI_EquipSlot.SlotType.Trinket: break;
+                default: break;
+            }
+            Temp.transform.localPosition = Vector3.zero;
+            Temp.transform.localRotation = Quaternion.identity;
+
             Success = true;
         }
         return Success;
@@ -87,5 +137,13 @@ public class Character : MonoBehaviour
     {
         Item Temp = Inventory.Find(Id).GetComponent<Item>();
         Stats = Stats - Temp.Stats;
+        Temp.OnUnEquip();
+    }
+
+    protected virtual void OnLevelUp()
+    {
+        Level++;
+        Experience = 0.0f;
+        StatRemaining += StatsPerLevel;
     }
 }

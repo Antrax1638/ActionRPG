@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDragHandler, IEndDragHandler
 {
-    [SerializeField] private bool AdjustToContent = false;
-	
 	[Header("Drag Properties:")]
 	public bool Draggable;
     public KeyModifier DragModifier;
@@ -24,13 +23,13 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 
 	[HideInInspector] public bool Activated { get{return IsActivated;} }
 
+    protected Vector2 InitialPosition;
 	protected Vector2 InitialPivotPoint = Vector2.zero;
 	protected Vector2 LocalPivotPoint = Vector2.zero;
 	protected RectTransform TransformComponent;
 	protected bool Dragged,IsActivated;
     private bool CanDrag = true;
     private bool[] ActiveChilds;
-
 
 	protected virtual void Awake ()
 	{
@@ -46,26 +45,22 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
         
 
 		InitialPivotPoint = TransformComponent.pivot;
-		IsActivated = gameObject.activeInHierarchy;
-	}
+        InitialPosition = TransformComponent.anchoredPosition;
 
-    protected virtual void Start()
-    {
-        if (AdjustToContent) {
-            //WIP
-        }
-    }
-		
+        IsActivated = gameObject.activeInHierarchy;
+
+	}
+    
 	protected virtual void Update()
 	{
-        if (Toggleable) {
+        if (Toggleable && !UI_Slot.DragObject) {
             if (Input.GetButtonDown(ToggleAction) && UI_Manager.Instance.InputKeyModifier(ToggleModifier))
             {
                 ToggleWindow();
             }
         }
-
-		if (Input.GetKeyDown (CloseKey))
+        
+		if (Input.GetKeyDown (CloseKey) && IsActivated && !UI_Slot.DragObject)
 			CloseWindow ();
 	}
 
@@ -78,18 +73,6 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		{
 			TransformComponent.SetAsLastSibling ();
 			UI_Manager.Instance.Focus = gameObject;
-		}
-	}
-		
-	public virtual void OnDrag (PointerEventData eventData)
-	{
-		if (!IsActivated || Visible == Visibility.Hidden)
-			return;
-		
-		if (Draggable && UI_Manager.Instance.InputKeyModifier(DragModifier) && CanDrag)
-		{
-            Vector2 Position = Input.mousePosition;
-			TransformComponent.anchoredPosition = Position + DragOffset;
 		}
 	}
 		
@@ -122,19 +105,40 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
             {
                 Canvas ParentCanvas = GetComponentInParent<Canvas>();
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(TransformComponent, eventData.position, ParentCanvas.worldCamera, out LocalPivotPoint);
-                LocalPivotPoint = Rect.PointToNormalized(TransformComponent.rect, LocalPivotPoint);
-                TransformComponent.pivot = LocalPivotPoint;
+                TransformComponent.pivot = Rect.PointToNormalized(TransformComponent.rect, LocalPivotPoint);
                 Dragged = true;
             }
 			
 		}	
 	}
 
-	public virtual void OnEndDrag (PointerEventData eventData)
-	{
-		Dragged = false;
+    public virtual void OnDrag(PointerEventData eventData)
+    {
+        if (!IsActivated || Visible == Visibility.Hidden)
+            return;
+
+        if (Draggable && UI_Manager.Instance.InputKeyModifier(DragModifier) && CanDrag)
+        {
+            TransformComponent.anchoredPosition = eventData.position + DragOffset;
+        }
+    }
+
+    public virtual void OnEndDrag(PointerEventData eventData)
+    {
+        bool Inside = true;
+        Dragged = false;
         CanDrag = true;
-	}
+
+        Vector2[] Position = new Vector2[2];
+        Position[0] = TransformComponent.offsetMax;
+        Position[1] = TransformComponent.offsetMin;
+        Rect ScreenRect = new Rect(0, 0, Screen.width, Screen.height);
+        
+        Inside &= ScreenRect.Contains(Position[0]);
+        //Inside &= ScreenRect.Contains(Position[1]);
+        print(TransformComponent.offsetMin);
+        print(Inside);
+    }
 		
 	public void CloseWindow()
 	{
@@ -148,6 +152,10 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		}
 		IsActivated = false;
         gameObject.SetActive(true);
+
+        UI_Slot.ToolTipComponent.SetActive(false);
+        UI_Slot.OverlayComponent.SetActive(false);
+        Destroy(UI_Slot.DragComponent);
         UI_Manager.Instance.SetInputMode(InputMode.GameOnly);
 	}
 
@@ -160,6 +168,15 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		}
 		IsActivated = true;
         gameObject.SetActive(true);
+
+        UI_Slot.ToolTipComponent.SetActive(false);
+        UI_Slot.OverlayComponent.SetActive(false);
+        GameObject LastSlot = GameManager.FindInstanceID(UI_Slot.LastActivedId);
+        if (LastSlot)
+        {
+            LastSlot.GetComponent<UI_Slot>().RestoreColor();
+        }
+
         UI_Manager.Instance.SetInputMode(InputMode.InterfaceOnly);
     }
 
@@ -170,5 +187,5 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		else
 			OpenWindow ();
 	}
-		
+	
 }
