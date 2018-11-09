@@ -182,6 +182,6 @@ public class ItemManager : MonoBehaviour
 
     public int GenerateId()
     {
-        return Mathf.Clamp(GeneratedIndex++, int.MinValue + 1, int.MinValue);
+        return Mathf.Clamp(GeneratedIndex++, int.MinValue + 1, int.MaxValue);
     }
 }

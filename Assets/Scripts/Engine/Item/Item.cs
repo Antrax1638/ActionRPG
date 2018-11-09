@@ -125,7 +125,7 @@ public class Item : MonoBehaviour
         transform.SetParent(Attach);
         GetComponent<MeshRenderer>().enabled = true;
         GetComponent<Rigidbody>().isKinematic = true;
-        GetComponent<Collider>().enabled = true;
+        GetComponent<Collider>().enabled = false;
         State = 1;
     }
 

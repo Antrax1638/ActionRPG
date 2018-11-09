@@ -260,6 +260,7 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (!ValidateItemFormat(NewItem)) {
             LastState = -1;
+            DebugLog("Item Invalid: " + NewItem.Id);
             return UI_Inventory.InvalidIndex;
         }
 		

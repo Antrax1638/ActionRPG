@@ -64,6 +64,8 @@ public class Character : MonoBehaviour
         UI_Hud.main.CharacterReference.Experience = Experience;
         UI_Hud.main.CharacterReference.MaxExperience = MaxExperience;
         UI_Hud.main.CharacterReference.Level = Level;
+        UI_Hud.main.ActionBarReference.HealthDifferencial = Stats.Health / Stats.MaxHealth;
+        UI_Hud.main.ActionBarReference.EnergyDifferencial = Stats.Energy / Stats.MaxEnergy;
 
     }
 
