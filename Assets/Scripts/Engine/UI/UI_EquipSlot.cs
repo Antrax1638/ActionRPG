@@ -83,7 +83,7 @@ public class UI_EquipSlot : UI_Slot
         if (Slot)
         {
             UI_EquipSlot EquipComponent = Slot.GetComponent<UI_EquipSlot>();
-            if (EquipComponent && Inventory)
+            if (EquipComponent && EquipComponent.Item == UI_Item.invalid && Inventory)
             {
                 UI_Item Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
                 if (ItemManager.Instance.Character.Equip(Item.Id, EquipComponent))

@@ -10,6 +10,7 @@ public class UI_Hud : UI_Base
     [Header("Hud Reference Properties:")]
     public UI_Character CharacterReference;
     public UI_ActionBar ActionBarReference;
+    public UI_QuestLog QuestLogReference;
 
     [Header("Blur Control:")]
     public bool Blur;

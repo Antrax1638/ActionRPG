@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDragHandler, IEndDragHandler
+public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
-	[Header("Drag Properties:")]
-	public bool Draggable;
+    [Header("Drag Properties:")]
+    public bool Draggable;
     public KeyModifier DragModifier;
     public Vector2 DragOffset = Vector2.zero;
     public RectTransform[] DragFilter;
@@ -21,36 +21,46 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
     [Header("Focus Properties:")]
     public bool Focusable;
 
-	[HideInInspector] public bool Activated { get{return IsActivated;} }
+    [HideInInspector] public bool Activated { get { return IsActivated; } }
 
     protected Vector2 InitialPosition;
-	protected Vector2 InitialPivotPoint = Vector2.zero;
-	protected Vector2 LocalPivotPoint = Vector2.zero;
-	protected RectTransform TransformComponent;
-	protected bool Dragged,IsActivated;
+    protected Vector2 InitialPivotPoint = Vector2.zero;
+    protected Vector2 LocalPivotPoint = Vector2.zero;
+    protected RectTransform TransformComponent;
+    protected bool Dragged, IsActivated;
     private bool CanDrag = true;
     private bool[] ActiveChilds;
 
-	protected virtual void Awake ()
-	{
-		TransformComponent = GetComponent<RectTransform> ();
-		if (!TransformComponent)
-			Debug.LogError ("UI_Window: transform component is null");
+    protected virtual void Awake()
+    {
+        TransformComponent = GetComponent<RectTransform>();
+        if (!TransformComponent)
+            Debug.LogError("UI_Window: transform component is null");
 
-		TransformComponents = GetComponentsInChildren<RectTransform> ();
-		if (TransformComponents == null)
-			Debug.Log("UI_Window: transform components are null");
+        TransformComponents = GetComponentsInChildren<RectTransform>();
+        if (TransformComponents == null)
+            Debug.Log("UI_Window: transform components are null");
 
         ActiveChilds = new bool[TransformComponents.Length];
-        
 
-		InitialPivotPoint = TransformComponent.pivot;
+
+        InitialPivotPoint = TransformComponent.pivot;
         InitialPosition = TransformComponent.anchoredPosition;
 
-        IsActivated = gameObject.activeInHierarchy;
+        IsActivated = Visible == Visibility.Visible;
 
-	}
-    
+    }
+
+    protected virtual void Start()
+    {
+        switch (Visible)
+        {
+            case Visibility.None: CloseWindow(); break;
+            case Visibility.Hidden: CloseWindow(); break;
+            case Visibility.Visible: OpenWindow(); break;
+        }
+    }
+
 	protected virtual void Update()
 	{
         if (Toggleable && !UI_Slot.DragObject) {
@@ -153,8 +163,11 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		IsActivated = false;
         gameObject.SetActive(true);
 
-        UI_Slot.ToolTipComponent.SetActive(false);
-        UI_Slot.OverlayComponent.SetActive(false);
+        if(UI_Slot.ToolTipComponent)
+            UI_Slot.ToolTipComponent.SetActive(false);
+        if(UI_Slot.OverlayComponent)
+            UI_Slot.OverlayComponent.SetActive(false);
+
         Destroy(UI_Slot.DragComponent);
         UI_Manager.Instance.SetInputMode(InputMode.GameOnly);
 	}
@@ -169,8 +182,11 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler , IBeginDra
 		IsActivated = true;
         gameObject.SetActive(true);
 
-        UI_Slot.ToolTipComponent.SetActive(false);
-        UI_Slot.OverlayComponent.SetActive(false);
+        if (UI_Slot.ToolTipComponent)
+            UI_Slot.ToolTipComponent.SetActive(false);
+        if (UI_Slot.OverlayComponent)
+            UI_Slot.OverlayComponent.SetActive(false);
+
         GameObject LastSlot = GameManager.FindInstanceID(UI_Slot.LastActivedId);
         if (LastSlot)
         {

@@ -42,28 +42,21 @@ public class UI_Manager : MonoBehaviour
         if (!ControllerComponent) Debug.LogError("UI_Manager: Controller component is null");
 
         WindowOpen = true;
-		RectTransform[] WindowGameObjects = GameObject.FindObjectsOfType<RectTransform> ();
+		UI_Window[] WindowGameObjects = GameObject.FindObjectsOfType<UI_Window> ();
 		for (int i = 0; i < WindowGameObjects.Length; i++) 
 		{
             if (WindowGameObjects[i].gameObject.layer == LayerMask.NameToLayer("UI"))
             {
                 Windows.Add(WindowGameObjects[i].gameObject);
-                WindowOpen &= WindowGameObjects[i].gameObject.activeInHierarchy;
+                WindowOpen &= WindowGameObjects[i].Activated;
             }
 		}
-		WindowGameObjects = new RectTransform[0];
+		WindowGameObjects = new UI_Window[0];
 
         UI_Slot.InitializeToolTip(ToolTip, GameObject.FindGameObjectWithTag("MainCanvas").transform);
         UI_Slot.InitializeOverlay(Overlay, GameObject.FindGameObjectWithTag("MainCanvas").transform);
     }
-
-    private void Update()
-    {
-        if (WindowOpen && ControllerComponent)
-            ControllerComponent.Mode = InputMode.InterfaceOnly;
-        
-    }
-
+    
     public bool InputKeyModifier(KeyModifier Key)
 	{
 		bool Success = false;

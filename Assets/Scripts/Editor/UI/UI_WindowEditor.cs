@@ -35,7 +35,8 @@ public class UI_WindowEditor : Editor
             Target.DragOffset = EditorGUILayout.Vector2Field("Drag Offset", Target.DragOffset);
             EditorGUILayout.BeginVertical("Box");
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-            GUILayout.Label("Drag Filters [" + DragFilter.Count + "]");
+            if(DragFilter != null)
+                GUILayout.Label("Drag Filters [" + DragFilter.Count + "]");
             GUI.skin.label.alignment = TextAnchor.LowerLeft;
             for (int i = 0; i < DragFilter.Count; i++)
             {
