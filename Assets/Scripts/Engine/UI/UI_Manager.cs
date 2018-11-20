@@ -56,7 +56,13 @@ public class UI_Manager : MonoBehaviour
         UI_Slot.InitializeToolTip(ToolTip, GameObject.FindGameObjectWithTag("MainCanvas").transform);
         UI_Slot.InitializeOverlay(Overlay, GameObject.FindGameObjectWithTag("MainCanvas").transform);
     }
-    
+
+    protected void Update()
+    {
+        /*InputMode CurrentState = (WindowOpen) ? InputMode.InterfaceOnly : InputMode.GameOnly;
+        SetInputMode(CurrentState);*/
+    }
+
     public bool InputKeyModifier(KeyModifier Key)
 	{
 		bool Success = false;

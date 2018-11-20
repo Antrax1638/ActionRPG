@@ -263,9 +263,12 @@ public class InventoryManager
         Item Temp;
         for (int i = 0; i < Inventory.Length; i++)
         {
-            Temp = Inventory[i].GetComponent<Item>();
-            if (Temp && Temp.Name == Name)
-                return Inventory[i];
+            if (Inventory[i])
+            {
+                Temp = Inventory[i].GetComponent<Item>();
+                if (Temp && Temp.Name == Name)
+                    return Inventory[i];
+            }
         }
 
         return null;
@@ -276,8 +279,12 @@ public class InventoryManager
         Item Temp;
         for (int i = 0; i < Inventory.Length; i++)
         {
-            Temp = Inventory[i].GetComponent<Item>();
-            if (Temp && Temp.Id == Id) return i;
+            if (Inventory[i])
+            {
+                Temp = Inventory[i].GetComponent<Item>();
+                if (Temp && Temp.Id == Id) return i;
+            }
+            
         }
 
         return -1;

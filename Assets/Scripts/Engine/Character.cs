@@ -27,6 +27,7 @@ public class Character : MonoBehaviour
     public Stat Stats;
 
     [Header("Drop")]
+    [SerializeField] Vector3 DropOffset;
     [SerializeField] float DropForce = 5;
     [SerializeField] float DropAngularForce = 5;
 
@@ -95,7 +96,7 @@ public class Character : MonoBehaviour
             {
                 Current = Inventory.RemoveAt(Index).GetComponent<Item>();
                 Current.OnDrop();
-                Current.transform.position = transform.position;
+                Current.transform.position = transform.position + DropOffset;
                 Current.GetComponent<Rigidbody>().AddForce(transform.forward * DropForce, ForceMode.Impulse);
                 Current.GetComponent<Rigidbody>().AddTorque(Current.transform.forward * DropAngularForce, ForceMode.Impulse);
             }

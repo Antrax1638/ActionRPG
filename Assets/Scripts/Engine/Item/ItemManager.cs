@@ -69,7 +69,7 @@ public class ItemManager : MonoBehaviour
             {
                 if (Hit.collider.tag == Tag)
                 {
-                    Controller.Mode = InputMode.InterfaceOnly;
+                    UI_Manager.Instance.SetInputMode(InputMode.InterfaceOnly);
                     HitPending = true;
 
                     Preview.SetActive(true);
@@ -92,6 +92,11 @@ public class ItemManager : MonoBehaviour
                     Preview.SetActive(false);
                     Controller.Mode = InputMode.GameOnly;
                     HitPending = false;
+                }
+                else
+                {
+                    Preview.SetActive(false);
+                    Controller.Mode = InputMode.GameOnly;
                 }
             }
         }

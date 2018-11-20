@@ -275,12 +275,13 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 		if(GetIcon () == null)
 			return;
 
+        Debug.LogWarning("BeginDrag");
 		if (DragPrefab && DragEnabled && DragKeyMod)
 		{
 			DragComponent = Instantiate (DragPrefab, TransformComponent.root);
 			UI_Drag Temp = DragComponent.GetComponent<UI_Drag> ();
 			Temp.name = name;
-			Temp.DragIcon = GetIcon ();
+			Temp.DragItem.Icon = GetIcon ();
             Temp.DragPosition = Position;
 			Temp.OnBeginDrag ();
 		}
@@ -290,6 +291,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	{
 		if (Visible == Visibility.Hidden)
 			return;
+
         if (Data.button != DragKey) return;
 
         if (DragComponent && DragEnabled) 
@@ -306,27 +308,28 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 			return;
         if (Data.button != DragKey) return;
 
+        UI_Item DragItem = UI_Item.invalid;
         if (DragComponent && DragEnabled) 
 		{
 			UI_Drag Temp = DragComponent.GetComponent<UI_Drag> ();
 			GetImage("Icon").color = Temp.DropColor;
+            DragItem = Temp.DragItem;
 			Temp.OnEndDrag ();
             DragComponent = null;
-		}
 
-        if (HoverObject)
-        {
-            switch (HoverObject.layer)
+            if (HoverObject)
             {
-                case 5: OnDrop(HoverObject); break;
-                default: break;
+                switch (HoverObject.layer)
+                {
+                    case 5: OnDrop(HoverObject, DragItem); break;
+                    default: break;
+                }
+            }
+            else
+            {
+                OnDrop(null, DragItem);
             }
         }
-        else
-        {
-            OnDrop(null);
-        }
-		
 	}
 
 	public virtual void OnPointerEnter(PointerEventData Data)
@@ -364,7 +367,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 		
 	}
 
-	public virtual void OnDrop(GameObject Slot)
+	public virtual void OnDrop(GameObject Slot,UI_Item Item)
 	{
 		
 	}

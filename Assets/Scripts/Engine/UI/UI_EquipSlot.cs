@@ -32,7 +32,6 @@ public class UI_EquipSlot : UI_Slot
     public SlotType Type;
     public bool Empty { get { return _Empty; } }
 
-    private UI_Item TempDrag = UI_Item.invalid;
     private bool _Empty = true;
 
 	protected override void Start ()
@@ -57,15 +56,14 @@ public class UI_EquipSlot : UI_Slot
             UI_Drag DragObject = DragComponent.GetComponent<UI_Drag>();
             if (DragObject && Item != UI_Item.invalid)
             {
-                DragObject.DragSize = Item.Size;
+                DragObject.DragItem = Item;
             }
         }
 
         if (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag && Inventory)
         {
-            TempDrag = Item;
             Inventory.RemoveItem(gameObject);
-            ItemManager.Instance.Character.UnEquip(TempDrag.Id, this);
+            ItemManager.Instance.Character.UnEquip(Item.Id, this);
         }
     }
 
@@ -75,7 +73,7 @@ public class UI_EquipSlot : UI_Slot
         if (Data.button != DragKey) return;
     }
 
-    public override void OnDrop(GameObject Slot)
+    public override void OnDrop(GameObject Slot, UI_Item Item)
     {
         if (Visible == Visibility.Hidden)
             return;
@@ -85,7 +83,7 @@ public class UI_EquipSlot : UI_Slot
             UI_EquipSlot EquipComponent = Slot.GetComponent<UI_EquipSlot>();
             if (EquipComponent && EquipComponent.Item == UI_Item.invalid && Inventory)
             {
-                UI_Item Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
+                //UI_Item Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
                 if (ItemManager.Instance.Character.Equip(Item.Id, EquipComponent))
                 {
                     int NewId = EquipComponent.Inventory.AddItem(Item, Slot);
@@ -120,7 +118,7 @@ public class UI_EquipSlot : UI_Slot
             UI_InventorySlot InventoryComponent = Slot.GetComponent<UI_InventorySlot>();
             if (InventoryComponent && Inventory)
             {
-                UI_Item Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
+                //UI_Item Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : this.Item;
                 Vector2Int Index = Inventory.AddItem(Item, InventoryComponent.Position);
                 if (Index != UI_Inventory.InvalidIndex)
                 {
@@ -139,7 +137,7 @@ public class UI_EquipSlot : UI_Slot
         }
         else
         {
-            Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : Item;
+            //Item = (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag) ? TempDrag : Item;
             ItemManager.Instance.Character.Drop(Item.Id);
             if (Remove == UI_InventorySlot.ERemoveType.RemoveOnDrag && RemoveMode == UI_InventorySlot.ERemoveMode.RestoreOnVoid)
             {

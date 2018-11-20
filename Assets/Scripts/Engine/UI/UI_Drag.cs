@@ -15,9 +15,9 @@ public class UI_Drag : MonoBehaviour, ICanvasRaycastFilter
 
 
     [Header("Content Properties:")]
-    public Sprite DragIcon;
     public Vector2Int DragPosition;
-    public Vector2Int DragSize = Vector2Int.one;
+    public UI_Item DragItem = UI_Item.invalid;
+
 
     public bool IsDrag { get { return MouseDrag; } }
     [HideInInspector] public GameObject Source;
@@ -49,9 +49,9 @@ public class UI_Drag : MonoBehaviour, ICanvasRaycastFilter
 	{
 		MouseDrag = true;
 		gameObject.SetActive (true);
-		ImageComponent.sprite = DragIcon;
+        ImageComponent.sprite = DragItem.Icon;
 		ImageComponent.color = DragColor;
-        TransformComponent.localScale = new Vector3(DragSize.x,DragSize.y,1);
+        //TransformComponent.localScale = new Vector3(DragSize.x,DragSize.y,1);
 	}
 
 	public void OnDrag(Vector2 Position)

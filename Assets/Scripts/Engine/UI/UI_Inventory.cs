@@ -169,21 +169,21 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
             HLTransform.anchoredPosition = HLTransformHover.anchoredPosition;
             HLTransform.sizeDelta = new Vector2(
-                DragObject.DragSize.x * GridPanelComponent.cellSize.x, 
-                DragObject.DragSize.y * GridPanelComponent.cellSize.y
+                DragObject.DragItem.Size.x * GridPanelComponent.cellSize.x, 
+                DragObject.DragItem.Size.y * GridPanelComponent.cellSize.y
                 );
 
             RangeValid &= (HoveredSlot.Position.x >= 0);
             RangeValid &= (HoveredSlot.Position.y >= 0);
-            RangeValid &= (HoveredSlot.Position.x + DragObject.DragSize.x <= GridCells.GetLength(0));
-            RangeValid &= (HoveredSlot.Position.y + DragObject.DragSize.y <= GridCells.GetLength(1));
+            RangeValid &= (HoveredSlot.Position.x + DragObject.DragItem.Size.x <= GridCells.GetLength(0));
+            RangeValid &= (HoveredSlot.Position.y + DragObject.DragItem.Size.y <= GridCells.GetLength(1));
 
             if (RangeValid)
             {
                 UI_InventorySlot Current = null;
-                for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragSize.x; x++)
+                for (int x = HoveredSlot.Position.x; x < HoveredSlot.Position.x + DragObject.DragItem.Size.x; x++)
                 {
-                    for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragSize.y; y++)
+                    for (int y = HoveredSlot.Position.y; y < HoveredSlot.Position.y + DragObject.DragItem.Size.y; y++)
                     {
                         Current = GridCells[x, y].GetComponent<UI_InventorySlot>();
                         if (Current && !ValidateItemFormat(Current.Item))

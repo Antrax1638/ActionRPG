@@ -97,7 +97,6 @@ public class MovementController : MonoBehaviour
                 */
             }
 
-
             if (Input.GetButtonUp(PrimaryMouseAction) || Input.GetButtonDown(StayAction))
                 DeltaSpeed = 0.0f;
         }
