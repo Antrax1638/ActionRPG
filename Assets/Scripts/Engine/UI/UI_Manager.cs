@@ -15,10 +15,12 @@ public class UI_Manager : MonoBehaviour
     public bool WindowOpen;
 
     [Header("Prefabs:")]
-    [Tooltip("Slots object tooltip preset")][SerializeField] private GameObject ToolTip = null;
-    [Tooltip("Slots object overlay preset")][SerializeField] private GameObject Overlay = null;
+    [Tooltip("Slots object tooltip preset")][SerializeField] private GameObject SlotToolTip = null;
+    [Tooltip("Slots object overlay preset")][SerializeField] private GameObject SlotOverlay = null;
+    [Tooltip("Ability drag & drop preset")][SerializeField] private GameObject AbilityDrag = null;
+    [Tooltip("Ability drag & drop preset")][SerializeField] private GameObject AbilityToolTip = null;
 
-	protected List<GameObject> Windows = new List<GameObject>();
+    protected List<UI_Window> Windows = new List<UI_Window>();
 	private static UI_Manager ManagerInstance;
 	private GameObject DragOperation;
     protected PlayerController ControllerComponent;
@@ -47,20 +49,23 @@ public class UI_Manager : MonoBehaviour
 		{
             if (WindowGameObjects[i].gameObject.layer == LayerMask.NameToLayer("UI"))
             {
-                Windows.Add(WindowGameObjects[i].gameObject);
+                Windows.Add(WindowGameObjects[i]);
                 WindowOpen &= WindowGameObjects[i].Activated;
             }
 		}
 		WindowGameObjects = new UI_Window[0];
 
-        UI_Slot.InitializeToolTip(ToolTip, GameObject.FindGameObjectWithTag("MainCanvas").transform);
-        UI_Slot.InitializeOverlay(Overlay, GameObject.FindGameObjectWithTag("MainCanvas").transform);
+        UI_Slot.InitializeToolTip(SlotToolTip, GameObject.FindGameObjectWithTag("MainCanvas").transform);
+        UI_Slot.InitializeOverlay(SlotOverlay, GameObject.FindGameObjectWithTag("MainCanvas").transform);
+        UI_Ability.InitializeDrag(AbilityDrag, GameObject.FindGameObjectWithTag("MainCanvas").transform);
+        UI_Ability.InitializeToolTip(AbilityToolTip, GameObject.FindGameObjectWithTag("MainCanvas").transform);
     }
 
     protected void Update()
     {
-        /*InputMode CurrentState = (WindowOpen) ? InputMode.InterfaceOnly : InputMode.GameOnly;
-        SetInputMode(CurrentState);*/
+        if (WindowOpen && ControllerComponent)
+            ControllerComponent.Mode = InputMode.InterfaceOnly;
+
     }
 
     public bool InputKeyModifier(KeyModifier Key)
@@ -105,21 +110,26 @@ public class UI_Manager : MonoBehaviour
 		return new Vector2Int (Index%Width,Index/Width);
 	}
 
+    public void SetInputMode(int Mode)
+    {
+        if (ControllerComponent)
+            ControllerComponent.Mode = (InputMode)Mode;
+    }
+
     public void SetInputMode(InputMode Mode)
     {
         if (ControllerComponent)
             ControllerComponent.Mode = Mode;
 
-        UI_Window Current = null;
         for (int i = 0; i < Windows.Count; i++)
         {
-            Current = Windows[i].GetComponent <UI_Window>();
-            if (Current && Current.Activated) {
+            if (Windows[i].Activated) {
                 WindowOpen = true;
                 return;
             }
         }
-
         WindowOpen = false;
     }
+
+    
 }

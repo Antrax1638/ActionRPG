@@ -93,11 +93,11 @@ public class ItemManager : MonoBehaviour
                     Controller.Mode = InputMode.GameOnly;
                     HitPending = false;
                 }
-                else
+                /*else
                 {
                     Preview.SetActive(false);
-                    Controller.Mode = InputMode.GameOnly;
-                }
+                    //Controller.Mode = InputMode.GameOnly;
+                }*/
             }
         }
 

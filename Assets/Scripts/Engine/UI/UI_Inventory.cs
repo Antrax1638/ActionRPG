@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
@@ -21,12 +22,7 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public Color HighlightValid = Color.green;
     public Color HighlightInvalid = Color.red;
 
-    [Header("Debug Properties:")]
     public bool DebugMode = false;
-    public Sprite DebugIcon;
-    public int DebugId;
-    public Vector2Int DebugSize;
-    public Vector2Int DebugPos;
 
     [HideInInspector] public int Length { get { return Size.x * Size.y; } }
     [HideInInspector] public static UI_InventorySlot HoveredSlot;
@@ -107,35 +103,18 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         HighLightObject = Instantiate(HighLightObject, transform);
         HighLightObject.transform.position = Vector3.zero;
         HighLightObject.SetActive(false);
-        print(HighLightObject.name);
+        
     }
 
     protected void Update()
     {
         ExitHighLight();
-
-        //HighLightUpdate();
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            Temp = new UI_Item(DebugId, DebugIcon, DebugSize);
-            AddItem(Temp);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            //GetDataMap ();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            print(RemoveItem(DebugPos));
-        }
     }
 
     protected void DebugLog(string info)
     {
         if (DebugMode)
-            Debug.Log(info);
+            Debug.Log(Utils.Format(info,Color.green));
     }
 
     protected virtual bool CompareItem(UI_Item a, UI_Item b)
@@ -220,7 +199,6 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         Vector2Int Position = UI_Inventory.InvalidIndex;
         Vector2Int CurrentPosition = UI_Inventory.InvalidIndex;
-
         List<Vector2Int> ValidPositions = new List<Vector2Int>();
 
         UI_InventorySlot CurrentSlot;
@@ -239,12 +217,12 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         for(int i = 0; i < ValidPositions.Count; i++)
         {
             Position = ValidPositions[i];
+            ValidSpace = true;
             for (int x = Position.x; x < Position.x + NewItem.Size.x; x++)
             {
                 for (int y = Position.y; y < Position.y + NewItem.Size.y; y++)
                 {
-                    CurrentPosition.x = x;
-                    CurrentPosition.y = y;
+                    CurrentPosition = new Vector2Int(x, y);
                     ValidSpace &= ValidPositions.Contains(CurrentPosition);
                 }
             }
@@ -271,7 +249,7 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 		int ItemHeight = Position.y + NewItem.Size.y;
 
         ValidIndex = (Position.x >= 0 && Position.y >= 0) && (ItemWidth - 1 < Size.x) && (ItemHeight - 1 < Size.y);
-        if (!ValidIndex) { DebugLog("Invalid Initial Position"); return Index; }
+        if (!ValidIndex) { DebugLog("Item out of inventory limits"); return Index; }
 
 		List<int> HierarchyIndex = new List<int> ();
 		List<GameObject> DeactivatedSlots = new List<GameObject> ();
@@ -535,6 +513,21 @@ public class UI_Inventory : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 			}
 		}
 	}
+
+    public void UpdateItems()
+    {
+        UI_InventorySlot CurrentSlot;
+        for (int x = 0; x < GridCells.GetLength(0); x++) {
+            for (int y = 0; y < GridCells.GetLength(1); y++)
+            {
+                CurrentSlot = GridCells[x, y].GetComponent<UI_InventorySlot>();
+                if (CurrentSlot && !CurrentSlot.GetImage("Icon").gameObject.activeInHierarchy)
+                {
+                    CurrentSlot.SetIcon(CurrentSlot.Item.Icon);
+                }
+            }
+        }
+    }
 
     public void OnPointerEnter(PointerEventData eventData)
     {

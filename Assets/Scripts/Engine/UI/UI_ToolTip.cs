@@ -12,11 +12,26 @@ public class UI_ToolTip : MonoBehaviour
     public float FadeSmooth = 0.01f;
     [Range(0.0f, 1.0f)] public float FadeMin = 0.0f;
     [Range(0.0f, 1.0f)] public float FadeMax = 1.0f;
+    public Color TitleColor;
+    public Color StatColor;
+
+    public EItemType Type = EItemType.None;
+    public string Rarity { set { RarityTxt.text = value; } }
+    public Color RarityColor { set { RarityTxt.color = value; } }
+    public string TypeText { set { TypeTxt.text = value; } }
+    public string MainStatText { set { StatText.text = value; } }
+    public float MainStatValue { set { StatValue.text = value.ToString(); } }
+    public int Value { set { SellValue.text = value.ToString(); } }
 
     [Header("Components:")]
     [SerializeField] private Text Title = null;
     [SerializeField] private Image Icon = null;
-   
+    [SerializeField] private Text RarityTxt = null;
+    [SerializeField] private Text TypeTxt = null;
+    [SerializeField] private Text StatText = null;
+    [SerializeField] private Text StatValue = null;
+    [SerializeField] private Text SellValue = null;
+
     [Header("Stat Properties")]
     public GameObject StatPrefab;
 
@@ -77,20 +92,19 @@ public class UI_ToolTip : MonoBehaviour
         SetStat<T>(Name, Stat, Color.white, "");
     }
 
-    public void SetStat<T>(string Name, T Stat, Color Color, string Unit, int Space = 1)
+    public void SetStat<T>(string Name, T Stat, Color Color, string Unit = "")
     {
-        string Spaces = "";
-        for (int i = 0; i < Space; i++)
-            Spaces += " ";
-
         if (Stats.ContainsKey(Name))
         {
             if (System.Convert.ToSingle(Stat) > 0.0f)
             {
                 char Operator = (System.Convert.ToSingle(Stat) > 0.0f) ? '+' : '-';
-                string StatText = Name + Spaces + Operator + Stat + Unit;
-                Stats[Name].GetComponentInChildren<Text>().text = StatText;
-                Stats[Name].GetComponentInChildren<Text>().color = Color;
+                UI_Stat Temp = Stats[Name].GetComponent<UI_Stat>();
+                Temp.Value = "" + Operator + Stat + Unit;
+                Temp.ValueColor = Color.white;
+                Temp.Description = Name;
+                Temp.DescriptionColor = Color;
+                
 
             }
             else
@@ -105,9 +119,11 @@ public class UI_ToolTip : MonoBehaviour
             {
                 Stats.Add(Name, Instantiate(StatPrefab, ScrollRectComponent.content));
                 char Operator = (System.Convert.ToSingle(Stat) > 0.0f) ? '+' : '-';
-                string StatText = Name + Spaces + Operator + Stat + Unit;
-                Stats[Name].GetComponentInChildren<Text>().text = StatText;
-                Stats[Name].GetComponentInChildren<Text>().color = Color;
+                UI_Stat Temp = Stats[Name].GetComponent<UI_Stat>();
+                Temp.Value = "" + Operator + Stat + Unit;
+                Temp.ValueColor = Color.white;
+                Temp.Description = Name;
+                Temp.DescriptionColor = Color;
             }
         }
 
@@ -116,44 +132,54 @@ public class UI_ToolTip : MonoBehaviour
     public void SetProperties(string Name,Sprite Icon,Stat Stats)
     {
         this.Title.text = Name;
+        this.Title.color = TitleColor;
         this.Icon.sprite = Icon;
 
+        switch (Type)
+        {
+            default: MainStatText = "None"; MainStatValue = 0; break;
+            case EItemType.Weapon: MainStatText = "Damage Per Second"; MainStatValue = Stats.Damage; break;
+            case EItemType.Consumible: MainStatText = "Health/Energy"; MainStatValue = Stats.Health; break;
+            case EItemType.Armor: MainStatText = "Armor"; MainStatValue = Stats.Armor; break;
+            case EItemType.Material: MainStatText = "Vision Radius"; MainStatValue = Stats.VisionRadius; break;
+        }
+
         //Basic:
-        SetStat<int>("Strength", Stats.Strength);
-        SetStat<int>("Agility", Stats.Agility);
-        SetStat<int>("Dexterity", Stats.Dexterity);
-        SetStat<int>("Inteligence", Stats.Inteligence);
-        SetStat<int>("Endurance", Stats.Endurance);
-        SetStat<int>("Luck", Stats.Luck);
+        SetStat<int>("Strength", Stats.Strength, StatColor);
+        SetStat<int>("Agility", Stats.Agility, StatColor);
+        SetStat<int>("Dexterity", Stats.Dexterity, StatColor);
+        SetStat<int>("Inteligence", Stats.Inteligence, StatColor);
+        SetStat<int>("Endurance", Stats.Endurance, StatColor);
+        SetStat<int>("Luck", Stats.Luck, StatColor);
         //Generic
-        SetStat<float>("Health", Stats.Health);
-        SetStat<float>("MaxHealth", Stats.MaxHealth);
-        SetStat<float>("HealthRegeneration", Stats.HealthRegeneration);
-        SetStat<float>("Energy", Stats.Energy);
-        SetStat<float>("MaxEnergy", Stats.MaxEnergy);
-        SetStat<float>("EnergyRegeneration", Stats.EnergyRegeneration);
-        SetStat<float>("Shield", Stats.Shield);
-        SetStat<float>("ShieldRegeneration", Stats.ShieldRegeneration);
+        //SetStat<float>("Health", Stats.Health,StatColor);
+        SetStat<float>("MaxHealth", Stats.MaxHealth, StatColor);
+        SetStat<float>("HealthRegeneration", Stats.HealthRegeneration, StatColor);
+        SetStat<float>("Energy", Stats.Energy, StatColor);
+        SetStat<float>("MaxEnergy", Stats.MaxEnergy, StatColor);
+        SetStat<float>("EnergyRegeneration", Stats.EnergyRegeneration, StatColor);
+        SetStat<float>("Shield", Stats.Shield, StatColor);
+        SetStat<float>("ShieldRegeneration", Stats.ShieldRegeneration, StatColor);
         //Offence
-        SetStat<float>("Damage", Stats.Damage);
-        SetStat<float>("DamageMultiplier", Stats.DamageMultiplier);
-        SetStat<float>("AttackSpeed", Stats.AttackSpeed);
-        SetStat<int>("Range", Stats.Range);
-        SetStat<float>("CriticalChance", Stats.CriticalChance);
-        SetStat<float>("CriticalMultiplier", Stats.CriticalMultiplier);
-        SetStat<float>("CriticalOverflow", Stats.CriticalOverflow);
+        //SetStat<float>("Damage", Stats.Damage,StatColor);
+        SetStat<float>("DamageMultiplier", Stats.DamageMultiplier, StatColor);
+        SetStat<float>("AttackSpeed", Stats.AttackSpeed, StatColor);
+        SetStat<int>("Range", Stats.Range, StatColor);
+        SetStat<float>("CriticalChance", Stats.CriticalChance, StatColor);
+        SetStat<float>("CriticalMultiplier", Stats.CriticalMultiplier, StatColor);
+        SetStat<float>("CriticalOverflow", Stats.CriticalOverflow, StatColor);
         //Defence
-        SetStat<int>("Armor", Stats.Armor);
-        SetStat<int>("ElementalArmor", Stats.ElementalArmor);
-        SetStat<float>("DamageReduction", Stats.DamageReduction);
-        SetStat<float>("Block", Stats.Block);
-        SetStat<float>("BlockChance", Stats.BlockChance);
-        SetStat<float>("Evasion", Stats.Evasion);
-        SetStat<float>("EvasionChance", Stats.EvasionChance);
+        //SetStat<int>("Armor", Stats.Armor,StatColor);
+        SetStat<int>("ElementalArmor", Stats.ElementalArmor, StatColor);
+        SetStat<float>("DamageReduction", Stats.DamageReduction, StatColor);
+        SetStat<float>("Block", Stats.Block, StatColor);
+        SetStat<float>("BlockChance", Stats.BlockChance, StatColor);
+        SetStat<float>("Evasion", Stats.Evasion, StatColor);
+        SetStat<float>("EvasionChance", Stats.EvasionChance, StatColor);
         //Misc
-        SetStat<float>("ColdownReduction", Stats.ColdownReduction);
-        SetStat<float>("Speed", Stats.Speed);
-        SetStat<float>("VisionRadius", Stats.VisionRadius);
+        SetStat<float>("ColdownReduction", Stats.ColdownReduction, StatColor);
+        SetStat<float>("Speed", Stats.Speed, StatColor);
+        SetStat<float>("VisionRadius", Stats.VisionRadius, StatColor);
     }
 
 }

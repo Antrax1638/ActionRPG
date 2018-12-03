@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
@@ -23,6 +24,13 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler, IBeginDrag
 
     [HideInInspector] public bool Activated { get { return IsActivated; } }
 
+    [System.Serializable] public class OnWindowOpen : UnityEvent { }
+    [System.Serializable] public class OnWindowClose : UnityEvent { }
+
+    [Header("Events Properties:")]
+    [SerializeField] private OnWindowOpen WindowOpen = new OnWindowOpen();
+    [SerializeField] private OnWindowClose WindowClose = new OnWindowClose();
+
     protected Vector2 InitialPosition;
     protected Vector2 InitialPivotPoint = Vector2.zero;
     protected Vector2 LocalPivotPoint = Vector2.zero;
@@ -42,11 +50,12 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler, IBeginDrag
             Debug.Log("UI_Window: transform components are null");
 
         ActiveChilds = new bool[TransformComponents.Length];
+        for (int i = 0; i < ActiveChilds.Length; i++)
+            ActiveChilds[i] = TransformComponents[i].gameObject.activeInHierarchy;
 
 
         InitialPivotPoint = TransformComponent.pivot;
         InitialPosition = TransformComponent.anchoredPosition;
-
         IsActivated = Visible == Visibility.Visible;
 
     }
@@ -163,6 +172,8 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler, IBeginDrag
 		IsActivated = false;
         gameObject.SetActive(true);
 
+        WindowClose.Invoke();
+
         if(UI_Slot.ToolTipComponent)
             UI_Slot.ToolTipComponent.SetActive(false);
         if(UI_Slot.OverlayComponent)
@@ -187,10 +198,11 @@ public class UI_Window : UI_Base, IPointerClickHandler, IDragHandler, IBeginDrag
         if (UI_Slot.OverlayComponent)
             UI_Slot.OverlayComponent.SetActive(false);
 
-        GameObject LastSlot = GameManager.FindInstanceID(UI_Slot.LastActivedId);
-        if (LastSlot)
+        WindowOpen.Invoke();
+
+        if (UI_Slot.LastActivedObject)
         {
-            LastSlot.GetComponent<UI_Slot>().RestoreColor();
+            UI_Slot.LastActivedObject.GetComponent<UI_Slot>().RestoreColor();
         }
 
         UI_Manager.Instance.SetInputMode(InputMode.InterfaceOnly);

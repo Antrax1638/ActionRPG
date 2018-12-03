@@ -78,6 +78,15 @@ public class Utils
     {
         return a * (b * Quaternion.Inverse(b));
     }
+    
+    public static string Format(string Text,Color Color)
+    {
+        byte R = (byte)(Color.r * 255f);
+        byte G = (byte)(Color.g * 255f);
+        byte B = (byte)(Color.b * 255f);
+        
+        return string.Format("<color=#{0:X2}{1:X2}{2:X2}>{3}</color>", R, G, B, Text);
+    }
 
 }
 

@@ -11,6 +11,7 @@ public class UI_Hud : UI_Base
     public UI_Character CharacterReference;
     public UI_ActionBar ActionBarReference;
     public UI_QuestLog QuestLogReference;
+    public UI_PassiveTree PassiveTreeReference;
 
     [Header("Blur Control:")]
     public bool Blur;

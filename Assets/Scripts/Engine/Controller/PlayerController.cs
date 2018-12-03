@@ -11,10 +11,10 @@ public enum InputType
 
 public enum InputMode
 {
+    None,
     GameOnly,
     InterfaceOnly,
-    All,
-    None
+    All
 };
 
 public class _Cursor
@@ -87,11 +87,6 @@ public class PlayerController : MonoBehaviour
         }
 
 	}
-
-    protected virtual void Start()
-    {
-       
-    }
 
     protected virtual void Update()
     {

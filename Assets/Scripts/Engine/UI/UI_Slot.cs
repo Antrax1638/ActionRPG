@@ -53,7 +53,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	private RectTransform TransformComponent;
 
 	[HideInInspector] public static GameObject DragComponent,ToolTipComponent,OverlayComponent;
-    [HideInInspector] public static int LastActivedId;
+    [HideInInspector] public static GameObject LastActivedObject;
 	private List<RaycastResult> RayCastResults = new List<RaycastResult>();
 	private GameObject[] HoverObjects;
 	protected static GameObject HoverObject;
@@ -271,11 +271,8 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 	{
 		if (Visible == Visibility.Hidden || Data.button != DragKey)
 			return;
-
 		if(GetIcon () == null)
 			return;
-
-        Debug.LogWarning("BeginDrag");
 		if (DragPrefab && DragEnabled && DragKeyMod)
 		{
 			DragComponent = Instantiate (DragPrefab, TransformComponent.root);
@@ -344,7 +341,7 @@ public class UI_Slot : UI_Base, IPointerEnterHandler, IPointerExitHandler, IDrag
 		}
         OverlayEnter();
 		Invoke ("ToolTipEnter", ToolTipTime);
-        LastActivedId = gameObject.GetInstanceID();
+        LastActivedObject = gameObject;
 	}
 
 	public virtual void OnPointerExit(PointerEventData Data)

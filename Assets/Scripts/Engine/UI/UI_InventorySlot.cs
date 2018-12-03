@@ -110,6 +110,22 @@ public class UI_InventorySlot : UI_Slot
             UI_ToolTip ToolTipObj = ToolTipComponent.GetComponent<UI_ToolTip>();
             Item ToolTipItem = ItemManager.Instance.Character.Inventory.Find(Item.Id).GetComponent<Item>();
 
+            ToolTipObj.Type = ToolTipItem.Type;
+            switch (ToolTipItem.Type)
+            {
+                case EItemType.Weapon:
+                    ToolTipObj.TypeText = "Weapon";
+                    break;
+                case EItemType.Consumible: ToolTipObj.TypeText = "Consumible";  break;
+                case EItemType.Armor: ToolTipObj.TypeText = "Armor";            break;
+                case EItemType.Material: ToolTipObj.TypeText = "Material";      break;
+                default: ToolTipObj.TypeText = "None";                          break;
+            }
+
+            //Retocar
+            ToolTipObj.Rarity = ToolTipItem.RarityText;
+            ToolTipObj.RarityColor = ToolTipItem.Rarity;
+            ToolTipObj.Value = ToolTipItem.Value;
             ToolTipObj.SetProperties(ToolTipItem.Name, Item.Icon, ToolTipItem.Stats);
         }
     }
@@ -133,7 +149,6 @@ public class UI_InventorySlot : UI_Slot
         if (Visible == Visibility.Hidden)
             return;
 
-        Debug.LogWarning("Drop Id:" + Item.Id);
         if (Slot)
         {
             UI_InventorySlot SlotComponent = Slot.GetComponent<UI_InventorySlot>();
@@ -160,7 +175,7 @@ public class UI_InventorySlot : UI_Slot
             UI_EquipSlot EquipComponent = Slot.GetComponent<UI_EquipSlot>();
             if (EquipComponent && EquipComponent.Inventory)
             {
-                if (ItemManager.Instance.Character.Equip(Item.Id, EquipComponent))
+                if (!EquipComponent.Inventory.ValidateItemFormat(EquipComponent.Item) && ItemManager.Instance.Character.Equip(Item.Id, EquipComponent))
                 {
                     int NewId = EquipComponent.Inventory.AddItem(Item, Slot);
                     if (NewId >= 0)

@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.Animations;
+using UnityEngine.Animations;
+//using UnityEditor.Animations;
 
 [System.Serializable]
 public enum EGender
@@ -145,7 +146,7 @@ public class AnimationState : MonoBehaviour
 	//Components:
 	private Animator AnimatorComponent;
 	private AnimationEvents AnimationEventComponent;
-	private AnimatorController AnimatorControllerComponent;
+	//private AnimatorController AnimatorControllerComponent;
     private PlayerController PlayerControllerComponent;
     private MovementController MovementControllerComponent;
 
@@ -163,9 +164,9 @@ public class AnimationState : MonoBehaviour
 			Debug.LogError ("Animation State: Animator is  null.");
 		else 
 		{
-			AnimatorControllerComponent = AnimatorComponent.runtimeAnimatorController as AnimatorController;
+			/*AnimatorControllerComponent = AnimatorComponent.runtimeAnimatorController as AnimatorController;
 			if (!AnimatorControllerComponent)
-				Debug.LogError ("Animation State: Animator Controller is null");
+				Debug.LogError ("Animation State: Animator Controller is null");*/
 		}
 
         AnimationEventComponent = GetComponentInChildren<AnimationEvents>();
@@ -497,10 +498,10 @@ public class AnimationState : MonoBehaviour
 			AnimatorComponent.SetTrigger (AttackName);
 
 			float AttackLength = 0.0f;
-			AnimationClip Temp = GetAnimationClip (AnimationClipName[0] + AnimationClipName[1]);
-			if (Temp != null) {
+			//AnimationClip Temp = GetAnimationClip (AnimationClipName[0] + AnimationClipName[1]);
+			/*if (Temp != null) {
 				AttackLength = Temp.length;
-			}
+			}*/
 			Invoke ("OnAttack", AttackLength/SpeedMultiplier);
 		}
 	}
@@ -780,7 +781,7 @@ public class AnimationState : MonoBehaviour
 	}
 
 	//Animation State Helpers:
-	AnimationClip GetAnimationClip(string name)
+	/*AnimationClip GetAnimationClip(string name)
 	{
 		for (int i = 0; i < AnimatorControllerComponent.animationClips.Length; i++) 
 		{
@@ -788,7 +789,7 @@ public class AnimationState : MonoBehaviour
 				return AnimatorControllerComponent.animationClips [i];
 		}
 		return null;
-	}
+	}*/
 
 	AnimationClip GetCurrentAnimationClip(int Layer,int Index)
 	{

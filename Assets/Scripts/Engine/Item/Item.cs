@@ -27,8 +27,10 @@ public class Item : MonoBehaviour
     public Stat Stats;
     public Stat RequieredStats;
     public Color Rarity = Color.white;
+    public string RarityText = "Common";
     public Sprite Icon;
     public Vector2Int Size;
+    public int Value = 0;
 
     private RectTransform ButtonTransform;
     private int State = -2;

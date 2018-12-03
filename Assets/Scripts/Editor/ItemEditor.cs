@@ -35,8 +35,10 @@ public class ItemEditor : Editor
         Target.Type = (EItemType)EditorGUILayout.EnumPopup("Type", Target.Type);
         Target.SlotType = (UI_EquipSlot.SlotType)EditorGUILayout.EnumPopup("Slot Type", Target.SlotType);
         Target.Rarity = EditorGUILayout.ColorField("Rarity", Target.Rarity);
+        Target.RarityText = EditorGUILayout.TextField("RarityText", Target.RarityText);
         Target.Icon = (Sprite)EditorGUILayout.ObjectField("Icon", Target.Icon, typeof(Sprite), true);
         Target.Size = EditorGUILayout.Vector2IntField(new GUIContent("Size","Icon size in inventory space grid"), Target.Size);
+        Target.Value = EditorGUILayout.IntField("Value", Target.Value);
 
         EditorGUILayout.BeginHorizontal("Box");
         GUILayout.Space(15);

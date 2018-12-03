@@ -8,6 +8,7 @@ TagManager:
   - Item
   - Slot
   - MainHud
+  - Ability
   layers:
   - Default
   - TransparentFX

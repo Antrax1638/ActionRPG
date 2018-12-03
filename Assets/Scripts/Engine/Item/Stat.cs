@@ -51,7 +51,6 @@ public class Stat
 	public float Speed;
     public float VisionRadius;
 
-
     //Basic Operations:
     public static Stat operator+(Stat a, Stat b)
     {

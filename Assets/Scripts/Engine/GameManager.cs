@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : MonoBehaviour
+{
 
     public static GameManager Instance { get { return instance; } }
     private static GameManager instance = null;
+
+    public PlayerController Controller;
+    public Character Character;
 
 	void Awake ()
     {
@@ -16,9 +20,9 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
 	}
 	
-	public static GameObject FindInstanceID(int InstanceId)
+	/*public static GameObject FindInstanceID(int InstanceId)
     {
         return (GameObject)UnityEditor.EditorUtility.InstanceIDToObject(InstanceId);
-    }
+    }*/
 
 }

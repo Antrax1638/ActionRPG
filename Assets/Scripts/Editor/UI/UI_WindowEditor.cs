@@ -13,7 +13,7 @@ public class UI_WindowEditor : Editor
 	protected void OnEnable ()
     {
         Target = target as UI_Window;
-        DragFilter = new List<RectTransform>(Target.DragFilter);
+        DragFilter = new List<RectTransform>();
 	}
 
     public override void OnInspectorGUI()
@@ -33,28 +33,32 @@ public class UI_WindowEditor : Editor
             Target.Draggable = EditorGUILayout.Toggle("Draggable", Target.Draggable);
             Target.DragModifier = (KeyModifier)EditorGUILayout.EnumPopup("Drag Modifier", Target.DragModifier);
             Target.DragOffset = EditorGUILayout.Vector2Field("Drag Offset", Target.DragOffset);
-            EditorGUILayout.BeginVertical("Box");
-            GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-            if(DragFilter != null)
-                GUILayout.Label("Drag Filters [" + DragFilter.Count + "]");
-            GUI.skin.label.alignment = TextAnchor.LowerLeft;
-            for (int i = 0; i < DragFilter.Count; i++)
+
+            if (DragFilter != null)
             {
+                EditorGUILayout.BeginVertical("Box");
+                GUI.skin.label.alignment = TextAnchor.MiddleCenter;
+                GUILayout.Label("Drag Filters [" + DragFilter.Count + "]");
+                GUI.skin.label.alignment = TextAnchor.LowerLeft;
+                for (int i = 0; i < DragFilter.Count; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    DragFilter[i] = (RectTransform)EditorGUILayout.ObjectField(DragFilter[i], typeof(RectTransform), true);
+                    GUI.color = Color.red;
+                    if (GUILayout.Button("[-]")) DragFilter.RemoveAt(i);
+                    GUI.color = Color.white;
+                    EditorGUILayout.EndHorizontal();
+                }
                 EditorGUILayout.BeginHorizontal();
-                DragFilter[i] = (RectTransform)EditorGUILayout.ObjectField(DragFilter[i], typeof(RectTransform), true);
-                GUI.color = Color.red;
-                if (GUILayout.Button("[-]")) DragFilter.RemoveAt(i);
-                GUI.color = Color.white;
+                Target.DragFilter = DragFilter.ToArray();
+
+                GUILayout.Space(10);
+                if (GUILayout.Button("[+]"))
+                    DragFilter.Add(new RectTransform());
+                GUILayout.Space(10);
                 EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
             }
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(10);
-            if (GUILayout.Button("[+]"))
-                DragFilter.Add(new RectTransform());
-            GUILayout.Space(10);
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndVertical();
-            Target.DragFilter = DragFilter.ToArray();
 
             GUILayout.Space(10);
             GUILayout.Label("Toggle Properties:");
@@ -66,10 +70,16 @@ public class UI_WindowEditor : Editor
             GUILayout.Label("Focus Properties:");
             Target.Focusable = EditorGUILayout.Toggle("Focusable", Target.Focusable);
             GUILayout.Space(10);
+
+            //GUILayout.Label("Events Properties:");
+            EditorGUILayout.PropertyField(CEditor.GetSerializedProperty(serializedObject, "WindowOpen"));
+            EditorGUILayout.PropertyField(CEditor.GetSerializedProperty(serializedObject, "WindowClose"));
         }
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndHorizontal();
         GUILayout.Space(10);
+
+        serializedObject.ApplyModifiedProperties();
 
         EditorUtility.SetDirty(Target);
     }

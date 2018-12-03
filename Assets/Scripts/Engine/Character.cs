@@ -17,14 +17,19 @@ public class Character : MonoBehaviour
 {
     [Header("Character")]
     public string Name;
+    public EGender Gender;
     public int Level;
     public float Experience;
     public float MaxExperience;
     public float ExperienceBase;
     public int StatsPerLevel;
     public AnimationCurve ExperienceCurve;
-    public EEnergyType EnergyType;
+    
     public Stat Stats;
+
+    [Header("Energy")]
+    public EEnergyType EnergyType;
+    public Color[] EnergyColors;
 
     [Header("Drop")]
     [SerializeField] Vector3 DropOffset;
@@ -58,6 +63,12 @@ public class Character : MonoBehaviour
             OnLevelUp();
         }
 
+        switch (EnergyType) {
+            default:break;
+            case EEnergyType.Fury: break;
+        }
+
+        //Character
         UI_Hud.main.CharacterReference.Health = Stats.Health;
         UI_Hud.main.CharacterReference.MaxHealth = Stats.MaxHealth;
         UI_Hud.main.CharacterReference.Energy = Stats.Energy;
@@ -65,9 +76,15 @@ public class Character : MonoBehaviour
         UI_Hud.main.CharacterReference.Experience = Experience;
         UI_Hud.main.CharacterReference.MaxExperience = MaxExperience;
         UI_Hud.main.CharacterReference.Level = Level;
-        UI_Hud.main.ActionBarReference.HealthDifferencial = Stats.Health / Stats.MaxHealth;
-        UI_Hud.main.ActionBarReference.EnergyDifferencial = Stats.Energy / Stats.MaxEnergy;
-
+        //Action Bar
+        UI_Hud.main.ActionBarReference.Health = Stats.Health;
+        UI_Hud.main.ActionBarReference.MaxHealth = Stats.MaxHealth;
+        UI_Hud.main.ActionBarReference.Energy = Stats.Energy;
+        UI_Hud.main.ActionBarReference.MaxEnergy = Stats.MaxEnergy;
+        UI_Hud.main.ActionBarReference.Experience = Experience;
+        UI_Hud.main.ActionBarReference.MaxExperience = MaxExperience;
+        int EnergyIndex = Mathf.Clamp((int)EnergyType, 0, EnergyColors.Length - 1);
+        UI_Hud.main.ActionBarReference.EnergyColor = EnergyColors[EnergyIndex];
     }
 
     public void PickUp(GameObject Object)
@@ -138,9 +155,18 @@ public class Character : MonoBehaviour
 
     public void UnEquip(int Id, UI_EquipSlot Slot)
     {
-        Item Temp = Inventory.Find(Id).GetComponent<Item>();
-        Stats = Stats - Temp.Stats;
-        Temp.OnUnEquip();
+        GameObject Object = Inventory.Find(Id);
+        if (Object)
+        {
+            Item ObjectItem = Object.GetComponent<Item>();
+            Stats = Stats - ObjectItem.Stats;
+            ObjectItem.OnUnEquip();
+        }
+    }
+
+    public void SetEnergyType(int Value)
+    {
+        EnergyType = (EEnergyType)Value;
     }
 
     protected virtual void OnLevelUp()
@@ -148,5 +174,48 @@ public class Character : MonoBehaviour
         Level++;
         Experience = 0.0f;
         StatRemaining += StatsPerLevel;
+        UI_Hud.main.PassiveTreeReference.PointsLeft++;
+
+        if (UI_Hud.main.CharacterReference) {
+            UI_Hud.main.CharacterReference.LeftPoints = StatRemaining;
+            UI_Hud.main.CharacterReference.Strength.interactable = true;
+            UI_Hud.main.CharacterReference.Agility.interactable = true;
+            UI_Hud.main.CharacterReference.Dexterity.interactable = true;
+            UI_Hud.main.CharacterReference.Endurance.interactable = true;
+            UI_Hud.main.CharacterReference.Inteligence.interactable = true;
+            UI_Hud.main.CharacterReference.Luck.interactable = true;
+        }
     }
+
+    //Base Stat
+    public void AddStrength(int Value)
+    {
+        Stats.Strength += Value;
+    }
+
+    public void AddAgility(int Value)
+    {
+        Stats.Agility += Value;
+    }
+
+    public void AddDexterity(int Value)
+    {
+        Stats.Dexterity += Value;
+    }
+
+    public void AddEndurance(int Value)
+    {
+        Stats.Endurance += Value;
+    }
+
+    public void AddInteligence(int Value)
+    {
+        Stats.Inteligence += Value;
+    }
+
+    public void AddLuck(int Value)
+    {
+        Stats.Luck += Value;
+    }
+    //Base Stat
 }
